@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel Administrativo | TUCUVORI</title>
+
+<style>
+:root{--green:#104b3c;--green2:#17634d;--green3:#e5f1eb;--gold:#c9a75e;--ink:#183b34;--muted:#687f7a;--bg:#f4f6f2;--line:#dce6e0;--white:#fff;--red:#a33e3e;--shadow:0 10px 32px rgba(19,61,48,.07)}
+*{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.55}
+header{position:relative;overflow:hidden;background:linear-gradient(115deg,#0d382e,#104b3c 60%,#1a5c49);color:#fff;padding:22px max(24px,calc((100% - 1420px)/2));border-bottom:3px solid var(--gold);box-shadow:0 5px 24px #123d3018}
+header:after{content:"";position:absolute;right:7%;top:-115px;width:230px;height:230px;border:1px solid #ffffff18;border-radius:50%;box-shadow:0 0 0 24px #ffffff08,0 0 0 52px #ffffff05;pointer-events:none}
+header .eyebrow{letter-spacing:.22em;text-transform:uppercase;font-size:11px;color:#e3cc8c;font-weight:800;margin-bottom:7px;position:relative;z-index:1}
+h1,h2,h3{margin:0 0 10px}h1{font:700 30px Georgia,"Times New Roman",serif;letter-spacing:.01em}header p{margin:0;color:#d5e5df;position:relative;z-index:1}
+main{max-width:1460px;margin:26px auto;padding:0 24px 44px}
+#app{min-height:55vh}
+.panel{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:17px;padding:23px;margin-bottom:17px;box-shadow:var(--shadow)}
+.panel h2{font:700 20px Georgia,"Times New Roman",serif;color:var(--green);margin-bottom:14px}
+.row{display:flex;gap:14px;flex-wrap:wrap}.row>*{flex:1;min-width:180px}
+label{display:block;font-weight:750;font-size:12px;margin:11px 0 7px;color:#294a41}
+input,textarea,select{width:100%;border:1px solid #d3e0da;border-radius:10px;padding:12px 13px;font:inherit;color:var(--ink);background:#fff;transition:border-color .15s,box-shadow .15s;min-height:44px}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--green2);box-shadow:0 0 0 3px #17634d18}
+textarea{min-height:92px;resize:vertical}
+button,.linkbtn{border:1px solid transparent;border-radius:10px;background:var(--green);color:white;padding:11px 16px;font:700 13px inherit;cursor:pointer;transition:transform .15s,background .15s,box-shadow .15s;box-shadow:0 3px 8px #174d3814;min-height:42px}
+button:hover{background:var(--green2);transform:translateY(-1px);box-shadow:0 6px 14px #174d3820}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+button.secondary{background:#edf5f0;color:var(--green);border-color:#d6e5dc;box-shadow:none}button.secondary:hover{background:#dfede5}
+button.danger{background:#fff3f1;color:var(--red);border-color:#f0d8d5;box-shadow:none}button.danger:hover{background:#ffe5e1}
+button.gold{background:var(--gold);color:#25352b}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.muted{color:var(--muted);font-size:13px}
+.status{padding:12px 14px;border-radius:11px;background:#eaf5ee;border:1px solid #d5e8dc;margin:12px 0;font-size:14px;color:#24543b}.status.error{background:#fff0f0;border-color:#f1d2d2;color:var(--red)}
+.hidden{display:none!important}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.stat{background:linear-gradient(145deg,#f7faf7,#edf3ef);border:1px solid #e0e9e3;border-radius:13px;padding:17px}.stat strong{display:block;font-size:27px;color:var(--green);font-weight:750;margin-top:3px}
+.item{border:1px solid var(--line);border-radius:14px;padding:17px;margin:13px 0;background:#fff;box-shadow:0 3px 12px #173b2508}
+.itemhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.pill{display:inline-block;border-radius:99px;background:#e8f1eb;color:var(--green);padding:5px 10px;font-size:11px;font-weight:750;border:1px solid #d9e8dc}
+.person{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line);align-items:center}.person small{display:block;color:var(--muted);margin-top:2px}
+.progress{height:8px;background:#e5ebe5;border-radius:9px;overflow:hidden;margin:11px 0}.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--green2),var(--gold));border-radius:9px}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.topline>p{margin:0}.topline .actions{margin-top:0}
+.footer{text-align:center;color:var(--green);padding:28px 12px;font:600 15px Georgia,"Times New Roman",serif}
+.header-actions{display:flex;gap:9px;flex-wrap:wrap}.header-actions button{white-space:nowrap}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 17px;padding:7px;background:#e8eee9;border:1px solid #dbe5de;border-radius:13px;width:max-content;max-width:100%}
+.tabs button{background:transparent;color:#35594e;border-color:transparent;box-shadow:none}.tabs button:hover{background:#f8fbf8;transform:none;box-shadow:none}
+.tabs button[aria-selected="true"]{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 4px 10px #104b3c20}
+.tab-panel[hidden]{display:none!important}
+.person-form{border:1px solid #dbe7df;border-radius:13px;padding:16px;margin:14px 0 18px;background:#f8faf8}
+.person-form h3{font-size:16px;color:var(--green);margin-bottom:5px}
+#itemsList .item{transition:border-color .15s,box-shadow .15s}#itemsList .item:hover{border-color:#c5d9ce;box-shadow:0 7px 20px #173b2510}
+@media(min-width:1000px){.tab-panel[data-tab-panel="contributions"] .panel:first-child{max-width:100%}}
+@media(max-width:760px){
+ header{padding:22px 18px 24px}header:after{right:-135px}h1{font-size:26px}
+ main{margin:16px auto;padding:0 12px 30px}
+ .panel{padding:17px;border-radius:14px;margin-bottom:13px}.panel h2{font-size:19px}
+ .stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.stat{padding:12px 10px}.stat strong{font-size:22px}.stat .muted{font-size:11px;line-height:1.35}
+ .tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:6px;padding:6px;margin:14px 0}
+ .tabs button{padding:10px 8px;font-size:12px;min-height:44px}
+ .topline{align-items:flex-start}.topline .actions{width:100%}.topline .actions button{flex:1}
+ .header-actions{width:100%}.header-actions button{flex:1}
+ .itemhead{display:block}.itemhead>.actions{margin-top:12px}
+ .person{align-items:flex-start;flex-direction:column;gap:8px}.person .actions{margin-top:4px;width:100%}.person .actions button{flex:1}
+ .row{display:block}.row>*{min-width:100%}.row>div+div{margin-top:7px}
+ .actions button{flex:1}.person-form{padding:12px}
+ input,textarea,select{font-size:16px}
+}
+@media(max-width:390px){.stats{grid-template-columns:1fr}.stat{display:flex;align-items:center;justify-content:space-between}.stat strong{margin:0}.tabs button{font-size:11px}.panel{padding:14px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="eyebrow">T.U.C.U.V.O.R.I.</div><h1>Painel de contribuições</h1><p>Templo de Umbanda Caboclo Ubirajara e Vovó Rita</p></header>
+<main>
+<div id="app" class="hidden">
+<div class="topline"><p id="welcome" class="muted">Painel conectado ao Firebase.</p><div class="actions header-actions"><button id="openList" type="button">↗ Abrir Lista</button><button class="secondary" id="copyLink" type="button">Copiar link público</button><button class="danger" id="clearList" type="button">Zerar lista</button></div></div>
+<div id="msg" class="status hidden"></div>
+<nav class="tabs" aria-label="Seções do painel">
+<button type="button" data-tab="overview" aria-selected="false">Resumo</button>
+<button type="button" data-tab="contributions" aria-selected="true">Pessoas e contribuições</button>
+<button type="button" data-tab="items" aria-selected="false">Cadastro de itens</button>
+<button type="button" data-tab="settings" aria-selected="false">Configurações</button>
+</nav>
+<div class="tab-panel" data-tab-panel="overview" hidden>
+<section class="panel"><h2>Resumo da lista</h2><div class="stats"><div class="stat"><span class="muted">Itens cadastrados</span><strong id="totalItems">0</strong></div><div class="stat"><span class="muted">Contribuições registradas</span><strong id="totalPeople">0</strong></div><div class="stat"><span class="muted">Itens com pendência</span><strong id="pendingItems">0</strong></div></div></section>
+<section class="panel"><h2>Visão geral dos itens</h2><p class="muted">Acompanhe responsáveis e andamento das contribuições na aba “Pessoas e contribuições”.</p></section>
+</div>
+<div class="tab-panel" data-tab-panel="settings" hidden>
+<section class="panel"><h2>Configurações do evento</h2>
+<form id="settingsForm"><label for="eventTitle">Título principal</label><input id="eventTitle" maxlength="120" required>
+<div class="row"><div><label for="eventDate">Data</label><input id="eventDate" type="date"></div><div><label for="eventTime">Horário</label><input id="eventTime" type="time"></div></div>
+<label for="eventInstructions">Orientações</label><textarea id="eventInstructions" maxlength="1500" placeholder="Informações importantes para quem vai contribuir"></textarea>
+<div class="actions"><button type="submit">Salvar configurações</button></div></form></section>
+</div>
+<div class="tab-panel" data-tab-panel="items" hidden>
+<section class="panel"><h2 id="itemFormTitle">Cadastrar item</h2><form id="itemForm">
+<input id="itemId" type="hidden"><div class="row"><div><label for="itemName">Nome do item</label><input id="itemName" maxlength="120" required></div><div><label for="itemCategory">Categoria</label><input id="itemCategory" maxlength="60" list="categoriesList" required placeholder="Ex.: Alimentos"><datalist id="categoriesList"></datalist></div></div>
+<div class="row"><div><label for="itemQty">Quantidade necessária (opcional)</label><input id="itemQty" type="number" min="0.01" max="100000" step="0.01" placeholder="Deixe em branco se não houver quantidade definida"></div><div><label for="itemUnit">Unidade de medida</label><select id="itemUnit"><option value="unidades">Unidades</option><option value="kg">Quilogramas (kg)</option><option value="pacotes">Pacotes</option><option value="litros">Litros</option><option value="porções">Porções</option><option value="caixas">Caixas</option><option value="outros">Outros</option></select></div></div>
+<div class="actions"><button type="submit">Salvar item</button><button type="button" class="secondary hidden" id="cancelEdit">Cancelar edição</button></div></form></section>
+</div>
+<div class="tab-panel" data-tab-panel="contributions">
+<section class="panel"><div class="topline"><h2>Adicionar pessoa manualmente</h2><span class="pill">Uso administrativo</span></div>
+<p class="muted">Use quando alguém confirmar por mensagem o item que vai levar, mesmo que a lista pública esteja fechada. A pessoa será registrada no item escolhido e aparecerá na lista pública.</p>
+<form id="manualContributionForm" class="person-form">
+<div class="row"><div><label for="manualItem">Item</label><select id="manualItem" required><option value="">Selecione um item</option></select></div><div><label for="manualName">Nome da pessoa</label><input id="manualName" maxlength="120" required placeholder="Nome completo"></div></div>
+<div class="row"><div><label for="manualQty">Quantidade</label><input id="manualQty" type="number" min="0.01" max="100000" step="0.01" value="1" required></div><div><label for="manualNote">Observação (opcional)</label><input id="manualNote" maxlength="300" placeholder="Ex.: confirmado por mensagem"></div></div>
+<div class="actions"><button type="submit">Adicionar pessoa ao item</button></div>
+</form>
+<p class="muted">A contribuição manual não marca o item como entregue. Use o botão “Marcar entregue” somente quando receber fisicamente.</p>
+</section>
+<section class="panel"><h2>Itens e responsáveis</h2><p class="muted">Use “Marcar entregue” para registrar o recebimento físico. Para retirar uma pessoa, use “Tirar pessoa do item”.</p><div id="itemsList"><p class="muted">Carregando lista…</p></div></section>
+</div>
+</div>
+<div class="footer">A casa é de todos. Todos usufruem. Axé a todos!</div>
+</main>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getDatabase, ref, onValue, set, update, remove, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+const firebaseConfig={apiKey:"AIzaSyAQCyebKjH-m1ToY5DTBzMq_qG8XLeAe2M",authDomain:"controle-de-fios-de-conta.firebaseapp.com",databaseURL:"https://controle-de-fios-de-conta-default-rtdb.firebaseio.com",projectId:"controle-de-fios-de-conta",storageBucket:"controle-de-fios-de-conta.firebasestorage.app",messagingSenderId:"478052515254",appId:"1:478052515254:web:def3fbb76af0df511c5517"};
+const app=initializeApp(firebaseConfig),db=getDatabase(app);
+const $=id=>document.getElementById(id);let currentUser={uid:'sem-login'},items={},contributions={},settings={},adminOK=true,unsubs=[];
+function msg(text,error=false){$('msg').textContent=text;$('msg').classList.toggle('error',error);$('msg').classList.remove('hidden')}
+function accessMsg(text,error=false){$('accessMsg').textContent=text;$('accessMsg').classList.toggle('error',error);$('accessMsg').classList.remove('hidden')}
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function num(n){return Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:2})}
+function cleanSubscriptions(){unsubs.forEach(f=>f());unsubs=[]}
+function subscribeData(){cleanSubscriptions();unsubs.push(onValue(ref(db,'settings'),s=>{settings=s.val()||{};$('eventTitle').value=settings.title||'Lista de contribuições TUCUVORI';$('eventDate').value=settings.date||'';$('eventTime').value=settings.time||'';$('eventInstructions').value=settings.instructions||'';render()},e=>msg('Não foi possível ler as configurações: '+e.message,true)));unsubs.push(onValue(ref(db,'items'),s=>{items=s.val()||{};render()},e=>msg('Erro ao carregar itens: '+e.message,true)));unsubs.push(onValue(ref(db,'contributions'),s=>{contributions=s.val()||{};render()},e=>msg('Erro ao carregar contribuições: '+e.message,true)))}
+function render(){const collator=new Intl.Collator('pt-BR',{sensitivity:'base',numeric:true});const cats=[...new Set(Object.values(items).map(x=>x.category).filter(Boolean))].sort((a,b)=>collator.compare(a,b));$('categoriesList').innerHTML=cats.map(c=>`<option value="${esc(c)}">`).join('');const manualSelect=$('manualItem');if(manualSelect){const previous=manualSelect.value;manualSelect.innerHTML='<option value="">Selecione um item</option>'+[...Object.entries(items)].sort((a,b)=>collator.compare(a[1].category||'Sem categoria',b[1].category||'Sem categoria')||collator.compare(a[1].name||'',b[1].name||'')).map(([id,it])=>`<option value="${esc(id)}">${esc(it.category||'Sem categoria')} — ${esc(it.name||'')}</option>`).join('');if(items[previous])manualSelect.value=previous;}const entries=Object.entries(items).sort((a,b)=>collator.compare(a[1].category||'Sem categoria',b[1].category||'Sem categoria')||collator.compare(a[1].name||'',b[1].name||''));let people=0,pending=0;const html=entries.map(([id,it])=>{const cs=Object.entries(contributions[id]||{}).map(([uid,c])=>({uid,...c}));people+=cs.length;const childCount=new Set(cs.map(c=>(c.name||'').trim().toLocaleLowerCase('pt-BR')).filter(Boolean)).size;const assumed=cs.reduce((sum,c)=>sum+Number(c.quantity||0),0);const need=Number(it.required||0),remaining=Math.max(0,need-assumed);if(need>0&&remaining>0)pending++;return `<article class="item"><div class="itemhead"><div><span class="pill">${esc(it.category||'Sem categoria')}</span><h3 style="margin-top:9px">${esc(it.name)}</h3><div class="muted">${childCount} filho(s) contribuíram com este item${need>0?` · ${num(assumed)} de ${num(need)} ${esc(it.unit||'unidades')} assumidos · faltam ${num(remaining)}`:''}</div></div><div class="actions"><button class="secondary" data-edit="${esc(id)}">Editar</button><button class="danger" data-delete="${esc(id)}">Excluir</button></div></div><div class="progress"><span style="width:${need?Math.min(100,assumed/need*100):0}%"></span></div>${cs.length?cs.map(c=>`<div class="person"><div><strong>${esc(c.name||'Sem nome')}</strong><small>${num(c.quantity)} ${esc(it.unit||'unidades')}${c.note?' · '+esc(c.note):''} · ${c.delivered?'Entregue':'Compromisso assumido'}</small></div><div class="actions"><button class="secondary" data-delivered="${esc(id)}|${esc(c.uid)}" data-value="${c.delivered?'false':'true'}">${c.delivered?'Desmarcar entrega':'Marcar entregue'}</button><button class="danger" data-removecon="${esc(id)}|${esc(c.uid)}">Tirar pessoa do item</button></div></div>`).join(''):'<p class="muted">Ainda não há responsáveis por este item.</p>'}</article>`}).join('');$('itemsList').innerHTML=html||'<p class="muted">Nenhum item cadastrado. Use o formulário acima para começar.</p>';$('totalItems').textContent=entries.length;$('totalPeople').textContent=people;$('pendingItems').textContent=pending;$('liveBadge').textContent='Atualizado em tempo real';$('welcome').textContent='Conectado como '+(currentUser?.email||'administrador')+'.'}
+$('app').classList.remove('hidden');subscribeData();
+$('settingsForm').addEventListener('submit',async e=>{e.preventDefault();if(!adminOK)return;try{await update(ref(db,'settings'),{title:$('eventTitle').value.trim(),date:$('eventDate').value,time:$('eventTime').value,instructions:$('eventInstructions').value.trim(),updatedAt:Date.now(),updatedBy:currentUser.uid});msg('Configurações salvas. A página pública será atualizada automaticamente.')}catch(err){msg('Erro ao salvar configurações: '+err.message,true)}});
+function resetItemForm(){$('itemForm').reset();$('itemId').value='';$('itemFormTitle').textContent='Cadastrar item';$('cancelEdit').classList.add('hidden')}
+$('itemForm').addEventListener('submit',async e=>{e.preventDefault();if(!adminOK)return;const id=$('itemId').value||crypto.randomUUID();const old=items[id]||{};const qtyText=$('itemQty').value.trim();const payload={name:$('itemName').value.trim(),category:$('itemCategory').value.trim(),required:qtyText===''?0:Number(qtyText),unit:$('itemUnit').value,createdAt:old.createdAt||Date.now(),updatedAt:Date.now(),updatedBy:currentUser.uid};if(!payload.name||!payload.category||!Number.isFinite(payload.required)||payload.required<0||(qtyText!==''&&payload.required<=0)){msg('Preencha o nome e a categoria. A quantidade é opcional; se informada, deve ser maior que zero.',true);return}try{await set(ref(db,'items/'+id),payload);resetItemForm();msg('Item salvo com sucesso.')}catch(err){msg('Erro ao salvar item: '+err.message,true)}});
+$('cancelEdit').addEventListener('click',resetItemForm);
+$('itemsList').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;try{if(b.dataset.edit){const id=b.dataset.edit,it=items[id];if(!it)return;$('itemId').value=id;$('itemName').value=it.name||'';$('itemCategory').value=it.category||'';$('itemQty').value=it.required||'';$('itemUnit').value=it.unit||'unidades';$('itemFormTitle').textContent='Editar item';$('cancelEdit').classList.remove('hidden');window.scrollTo({top:$('itemForm').getBoundingClientRect().top+scrollY-20,behavior:'smooth'})}else if(b.dataset.delete){const id=b.dataset.delete;if(!confirm('Excluir este item? As contribuições associadas também serão removidas.'))return;await remove(ref(db,'items/'+id));await remove(ref(db,'contributions/'+id));await set(ref(db,'adminLogs/'+crypto.randomUUID()),{action:'delete_item',itemId:id,by:currentUser.uid,at:Date.now()});msg('Item e contribuições associadas removidos.')}else if(b.dataset.delivered){const [id,uid]=b.dataset.delivered.split('|');await update(ref(db,`contributions/${id}/${uid}`),{delivered:b.dataset.value==='true',deliveryUpdatedAt:Date.now(),deliveryUpdatedBy:currentUser.uid});msg('Status de entrega atualizado.')}else if(b.dataset.removecon){const [id,uid]=b.dataset.removecon.split('|');if(!confirm('Deseja tirar esta pessoa do item? A contribuição será removida da lista pública.'))return;await remove(ref(db,`contributions/${id}/${uid}`));await set(ref(db,'adminLogs/'+crypto.randomUUID()),{action:'admin_remove_participant_from_item',itemId:id,participantUid:uid,by:currentUser.uid,at:Date.now()});msg('Pessoa retirada do item com sucesso.')}}catch(err){msg('Não foi possível concluir a ação: '+err.message,true)}});
+document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(!b)return;const tab=b.dataset.tab;document.querySelectorAll('.tabs button[data-tab]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));document.querySelectorAll('.tab-panel[data-tab-panel]').forEach(panel=>panel.hidden=panel.dataset.tabPanel!==tab);});
+$('manualContributionForm').addEventListener('submit',async e=>{e.preventDefault();if(!adminOK)return;const itemId=$('manualItem').value,name=$('manualName').value.trim(),quantity=Number($('manualQty').value),note=$('manualNote').value.trim();if(!items[itemId]){msg('Selecione um item válido.',true);return}if(!name||!Number.isFinite(quantity)||quantity<=0){msg('Informe o nome e uma quantidade maior que zero.',true);return}try{const uid='manual-'+crypto.randomUUID();await set(ref(db,`contributions/${itemId}/${uid}`),{name,quantity,note,delivered:false,createdAt:Date.now(),createdBy:currentUser.uid,source:'admin_manual'});await set(ref(db,'adminLogs/'+crypto.randomUUID()),{action:'admin_add_manual_contribution',itemId,participantUid:uid,name,quantity,by:currentUser.uid,at:Date.now()});$('manualName').value='';$('manualQty').value='1';$('manualNote').value='';msg('Pessoa adicionada ao item com sucesso.');}catch(err){msg('Não foi possível adicionar a pessoa: '+err.message,true)}});
+const publicListUrl=()=>new URL('lista-participantes.html',location.href).href;
+$('openList').addEventListener('click',()=>{location.href=publicListUrl()});
+$('copyLink').addEventListener('click',async()=>{const url=publicListUrl();try{await navigator.clipboard.writeText(url);msg('Link público copiado: '+url)}catch{msg('Copie este link para compartilhar: '+url)}});
+$('clearList').addEventListener('click',async()=>{
+  const count=Object.values(contributions).reduce((sum,byItem)=>sum+(byItem&&typeof byItem==='object'?Object.keys(byItem).length:0),0);
+  if(!confirm(`Zerar a lista? Isso apagará todas as ${count} contribuições registradas, inclusive status de entrega. Os itens/produtos cadastrados e as configurações do evento serão mantidos. Esta ação não pode ser desfeita.`))return;
+  if(!confirm('Confirma mais uma vez? Todas as contribuições serão apagadas permanentemente.'))return;
+  try{await remove(ref(db,'contributions'));await set(ref(db,'adminLogs/'+crypto.randomUUID()),{action:'clear_contributions',count,by:currentUser.uid,at:Date.now()});resetItemForm();msg('Lista zerada. Os itens cadastrados e as configurações foram mantidos.');}
+  catch(err){msg('Não foi possível zerar a lista: '+err.message,true)}
+});
+</script>
+</body></html>

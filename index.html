@@ -103,7 +103,7 @@ button.danger{background:#fff5f3;color:#a45d59;border-color:#f0e1dd}button.dange
  header .eyebrow{margin-bottom:8px}h1{font-size:25px;max-width:300px}header p{font-size:12px;max-width:290px}
  main{margin:17px auto;padding:0 13px 30px}
  .panel{padding:17px;border-radius:20px;margin-bottom:13px}.panel h2{font-size:18px;margin-bottom:13px}
- .topline{display:block}.topline>p{margin-bottom:12px}.header-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.header-actions button{font-size:12px;padding:10px 9px;min-height:44px}.header-actions #clearList{grid-column:1/-1;min-height:40px}
+ .topline{display:block}.topline>p{margin-bottom:12px}.header-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.header-actions button{font-size:12px;padding:10px 9px;min-height:44px}.header-actions #clearList,.header-actions #clearItems{min-height:42px}
  .tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:6px;padding:6px;margin:15px 0 13px;border-radius:17px}
  .tabs button{padding:10px 7px;font-size:11px;line-height:1.25;min-height:45px;border-radius:12px}
  .stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.stat{padding:12px 9px;border-radius:15px;min-width:0}.stat strong{font-size:23px}.stat .muted{font-size:10px;line-height:1.35;overflow-wrap:anywhere}
@@ -122,8 +122,8 @@ button.danger{background:#fff5f3;color:#a45d59;border-color:#f0e1dd}button.dange
 <header><div class="eyebrow">T.U.C.U.V.O.R.I.</div><h1>Painel de Contribuições</h1><p>Templo de Umbanda Caboclo Ubirajara e Vovó Rita</p></header>
 <main>
 <div id="app" class="hidden">
-<div class="topline"><div class="actions header-actions"><button class="danger" id="clearList" type="button">Zerar Lista</button></div></div>
-<div id="msg" class="status hidden"></div>
+<div class="topline"><div class="actions header-actions"><button type="button" id="openList">↗ Abrir Lista</button><button type="button" class="secondary" id="copyLink">Copiar link público</button><button class="danger" id="clearList" type="button">Zerar Lista</button><button class="danger" id="clearItems" type="button">Zerar Itens</button></div></div>
+<div id="welcome" class="muted" style="margin:8px 0 14px">Conectando ao Firebase…</div><div id="msg" class="status hidden"></div>
 <nav class="tabs" aria-label="Seções do painel">
 <button type="button" data-tab="overview" aria-selected="false">Resumo</button>
 <button type="button" data-tab="contributions" aria-selected="true">Pessoas e Contribuições</button>
@@ -189,7 +189,7 @@ if(overview){
     return `<article class="item"><div class="itemhead"><div><span class="pill">${esc(it.category||'Sem categoria')}</span><h3 style="margin-top:9px">${esc(it.name||'Item sem nome')}</h3></div><span class="pill">${cs.length} contribuição(ões)</span></div>${need>0?`<p class="muted">Assumido: <strong>${num(assumed)} de ${num(need)} ${esc(it.unit||'unidades')}</strong> · Falta: <strong>${num(remaining)} ${esc(it.unit||'unidades')}</strong></p><div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(percent)}"><span style="width:${percent}%"></span></div>`:`<p class="muted">Quantidade necessária não definida · ${num(assumed)} ${esc(it.unit||'unidades')} assumidos</p>`}<p class="muted">Quantidade entregue: ${num(delivered)} ${esc(it.unit||'unidades')}</p>${peopleHtml}</article>`;
   }).join(''):'<p class="muted">Nenhum item cadastrado ainda. Acesse “Cadastro de itens” para adicionar o primeiro item.</p>';
 }
-$('welcome').textContent='Painel conectado ao Firebase.';
+if($('welcome'))$('welcome').textContent='Painel conectado ao Firebase.';
 } 
 $('app').classList.remove('hidden');subscribeData();
 $('settingsForm').addEventListener('submit',async e=>{e.preventDefault();if(!adminOK)return;try{await update(ref(db,'settings'),{title:$('eventTitle').value.trim(),date:$('eventDate').value,time:$('eventTime').value,instructions:$('eventInstructions').value.trim(),updatedAt:Date.now(),updatedBy:currentUser.uid});msg('Configurações salvas. A página pública será atualizada automaticamente.')}catch(err){msg('Erro ao salvar configurações: '+err.message,true)}});
@@ -202,12 +202,31 @@ $('manualContributionForm').addEventListener('submit',async e=>{e.preventDefault
 const publicListUrl=()=>new URL('lista-participantes.html',location.href).href;
 $('openList').addEventListener('click',()=>{location.href=publicListUrl()});
 $('copyLink').addEventListener('click',async()=>{const url=publicListUrl();try{await navigator.clipboard.writeText(url);msg('Link público copiado: '+url)}catch{msg('Copie este link para compartilhar: '+url)}});
+// Zerar Lista: remove somente as pessoas/contribuições e mantém os itens cadastrados.
 $('clearList').addEventListener('click',async()=>{
   const count=Object.values(contributions).reduce((sum,byItem)=>sum+(byItem&&typeof byItem==='object'?Object.keys(byItem).length:0),0);
-  if(!confirm(`Zerar a lista? Isso apagará todas as ${count} contribuições registradas, inclusive status de entrega. Os itens/produtos cadastrados e as configurações do evento serão mantidos. Esta ação não pode ser desfeita.`))return;
-  if(!confirm('Confirma mais uma vez? Todas as contribuições serão apagadas permanentemente.'))return;
-  try{await remove(ref(db,'contributions'));await set(ref(db,'adminLogs/'+crypto.randomUUID()),{action:'clear_contributions',count,by:currentUser.uid,at:Date.now()});resetItemForm();msg('Lista zerada. Os itens cadastrados e as configurações foram mantidos.');}
-  catch(err){msg('Não foi possível zerar a lista: '+err.message,true)}
+  if(!confirm(`Zerar a lista de contribuições? Serão removidas ${count} contribuições e seus status de entrega. Os itens cadastrados e as configurações serão mantidos. Esta ação não pode ser desfeita.`))return;
+  if(!confirm('Confirma? Todas as pessoas que contribuíram serão removidas da lista.'))return;
+  try{
+    await remove(ref(db,'contributions'));
+    await set(ref(db,'adminLogs/'+crypto.randomUUID()),{action:'clear_contributions',count,by:currentUser.uid,at:Date.now()});
+    resetItemForm();
+    msg('Lista zerada: as contribuições foram removidas e os itens foram mantidos.');
+  }catch(err){msg('Não foi possível zerar a lista: '+err.message,true)}
+});
+
+// Zerar Itens: remove o catálogo de itens e as contribuições vinculadas a eles.
+$('clearItems').addEventListener('click',async()=>{
+  const itemCount=Object.keys(items).length;
+  const contributionCount=Object.values(contributions).reduce((sum,byItem)=>sum+(byItem&&typeof byItem==='object'?Object.keys(byItem).length:0),0);
+  if(!confirm(`Zerar itens? Serão excluídos os ${itemCount} itens cadastrados e as ${contributionCount} contribuições vinculadas a eles. As configurações do evento serão mantidas. Esta ação não pode ser desfeita.`))return;
+  if(!confirm('Confirma mais uma vez? Todos os itens cadastrados serão apagados.'))return;
+  try{
+    await Promise.all([remove(ref(db,'items')),remove(ref(db,'contributions'))]);
+    await set(ref(db,'adminLogs/'+crypto.randomUUID()),{action:'clear_items',itemCount,contributionCount,by:currentUser.uid,at:Date.now()});
+    resetItemForm();
+    msg('Itens zerados: o catálogo e as contribuições vinculadas foram removidos. As configurações foram mantidas.');
+  }catch(err){msg('Não foi possível zerar os itens: '+err.message,true)}
 });
 </script>
 </body></html>

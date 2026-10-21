@@ -119,40 +119,40 @@ button.danger{background:#fff5f3;color:#a45d59;border-color:#f0e1dd}button.dange
 </style>
 </head>
 <body>
-<header><div class="eyebrow">T.U.C.U.V.O.R.I.</div><h1>Painel de contribuições</h1><p>Templo de Umbanda Caboclo Ubirajara e Vovó Rita</p></header>
+<header><div class="eyebrow">T.U.C.U.V.O.R.I.</div><h1>Painel de Contribuições</h1><p>Templo de Umbanda Caboclo Ubirajara e Vovó Rita</p></header>
 <main>
 <div id="app" class="hidden">
-<div class="topline"><div class="actions header-actions"><button id="openList" type="button">↗ Abrir Lista</button><button class="secondary" id="copyLink" type="button">Copiar link público</button><button class="danger" id="clearList" type="button">Zerar lista</button></div></div>
+<div class="topline"><div class="actions header-actions"><button class="danger" id="clearList" type="button">Zerar Lista</button></div></div>
 <div id="msg" class="status hidden"></div>
 <nav class="tabs" aria-label="Seções do painel">
 <button type="button" data-tab="overview" aria-selected="false">Resumo</button>
-<button type="button" data-tab="contributions" aria-selected="true">Pessoas e contribuições</button>
-<button type="button" data-tab="items" aria-selected="false">Cadastro de itens</button>
+<button type="button" data-tab="contributions" aria-selected="true">Pessoas e Contribuições</button>
+<button type="button" data-tab="items" aria-selected="false">Cadastro de Itens</button>
 <button type="button" data-tab="settings" aria-selected="false">Configurações</button>
 </nav>
 <div class="tab-panel" data-tab-panel="overview" hidden>
-<section class="panel"><h2>Resumo da lista</h2><div class="stats"><div class="stat"><span class="muted">Itens cadastrados</span><strong id="totalItems">0</strong></div><div class="stat"><span class="muted">Contribuições registradas</span><strong id="totalPeople">0</strong></div><div class="stat"><span class="muted">Itens com pendência</span><strong id="pendingItems">0</strong></div></div></section>
-<section class="panel"><h2>Visão geral dos itens</h2><p class="muted">Acompanhe os itens cadastrados, responsáveis e andamento das contribuições em tempo real.</p><div id="overviewItems"><p class="muted">Carregando visão geral…</p></div></section>
+<section class="panel"><h2>Resumo da Lista</h2><div class="stats"><div class="stat"><span class="muted">Itens Cadastrados</span><strong id="totalItems">0</strong></div><div class="stat"><span class="muted">Contribuições Registradas</span><strong id="totalPeople">0</strong></div><div class="stat"><span class="muted">Itens com Pendência</span><strong id="pendingItems">0</strong></div></div></section>
+<section class="panel"><h2>Visão geral dos Itens</h2><p class="muted">Acompanhe os itens cadastrados, responsáveis e andamento das contribuições em tempo real.</p><div id="overviewItems"><p class="muted">Carregando visão geral…</p></div></section>
 </div>
 <div class="tab-panel" data-tab-panel="settings" hidden>
-<section class="panel"><h2>Configurações do evento</h2>
-<form id="settingsForm"><label for="eventTitle">Título principal</label><input id="eventTitle" maxlength="120" required>
+<section class="panel"><h2>Configurações do Evento</h2>
+<form id="settingsForm"><label for="eventTitle">Título Principal</label><input id="eventTitle" maxlength="120" required>
 <div class="row"><div><label for="eventDate">Data</label><input id="eventDate" type="date"></div><div><label for="eventTime">Horário</label><input id="eventTime" type="time"></div></div>
 <label for="eventInstructions">Orientações</label><textarea id="eventInstructions" maxlength="1500" placeholder="Informações importantes para quem vai contribuir"></textarea>
-<div class="actions"><button type="submit">Salvar configurações</button></div></form></section>
+<div class="actions"><button type="submit">Salvar Configurações</button></div></form></section>
 </div>
 <div class="tab-panel" data-tab-panel="items" hidden>
-<section class="panel"><h2 id="itemFormTitle">Cadastrar item</h2><form id="itemForm">
-<input id="itemId" type="hidden"><div class="row"><div><label for="itemName">Nome do item</label><input id="itemName" maxlength="120" required></div><div><label for="itemCategory">Categoria</label><input id="itemCategory" maxlength="60" list="categoriesList" required placeholder="Ex.: Alimentos"><datalist id="categoriesList"></datalist></div></div>
-<div class="row"><div><label for="itemQty">Quantidade necessária (opcional)</label><input id="itemQty" type="number" min="0.01" max="100000" step="0.01" placeholder="Deixe em branco se não houver quantidade definida"></div><div><label for="itemUnit">Unidade de medida</label><select id="itemUnit"><option value="unidades">Unidades</option><option value="kg">Quilogramas (kg)</option><option value="pacotes">Pacotes</option><option value="litros">Litros</option><option value="porções">Porções</option><option value="caixas">Caixas</option><option value="outros">Outros</option></select></div></div>
+<section class="panel"><h2 id="itemFormTitle">Cadastrar Item</h2><form id="itemForm">
+<input id="itemId" type="hidden"><div class="row"><div><label for="itemName">Nome do Item</label><input id="itemName" maxlength="120" required></div><div><label for="itemCategory">Categoria</label><input id="itemCategory" maxlength="60" list="categoriesList" required placeholder="Ex.: Alimentos"><datalist id="categoriesList"></datalist></div></div>
+<div class="row"><div><label for="itemQty">Quantidade Necessária (Opcional)</label><input id="itemQty" type="number" min="0.01" max="100000" step="0.01" placeholder="Deixe em branco se não houver quantidade definida"></div><div><label for="itemUnit">Unidade de Medida</label><select id="itemUnit"><option value="unidades">Unidades</option><option value="kg">Quilogramas (kg)</option><option value="pacotes">Pacotes</option><option value="litros">Litros</option><option value="porções">Porções</option><option value="caixas">Caixas</option><option value="outros">Outros</option></select></div></div>
 <div class="actions"><button type="submit">Salvar item</button><button type="button" class="secondary hidden" id="cancelEdit">Cancelar edição</button></div></form></section>
 </div>
 <div class="tab-panel" data-tab-panel="contributions">
-<section class="panel"><div class="topline"><h2>Adicionar pessoa manualmente</h2><span class="pill">Uso administrativo</span></div>
+<section class="panel"><div class="topline"><h2>Adicionar Pessoa Manualmente</h2><span class="pill">Uso Administrativo</span></div>
 <p class="muted">Use quando alguém confirmar por mensagem o item que vai levar, mesmo que a lista pública esteja fechada. A pessoa será registrada no item escolhido e aparecerá na lista pública.</p>
 <form id="manualContributionForm" class="person-form">
-<div class="row"><div><label for="manualItem">Item</label><select id="manualItem" required><option value="">Selecione um item</option></select></div><div><label for="manualName">Nome da pessoa</label><input id="manualName" maxlength="120" required placeholder="Nome completo"></div></div>
-<div class="row"><div><label for="manualQty">Quantidade</label><input id="manualQty" type="number" min="0.01" max="100000" step="0.01" value="1" required></div><div><label for="manualNote">Observação (opcional)</label><input id="manualNote" maxlength="300" placeholder="Ex.: confirmado por mensagem"></div></div>
+<div class="row"><div><label for="manualItem">Item</label><select id="manualItem" required><option value="">Selecione um Item</option></select></div><div><label for="manualName">Nome</label><input id="manualName" maxlength="120" required placeholder="Nome"></div></div>
+<div class="row"><div><label for="manualQty">Quantidade</label><input id="manualQty" type="number" min="0.01" max="100000" step="0.01" value="1" required></div><div><label for="manualNote">Observação (Opcional)</label><input id="manualNote" maxlength="300" placeholder="Ex.: confirmado por mensagem"></div></div>
 <div class="actions"><button type="submit">Adicionar pessoa ao item</button></div>
 </form>
 <p class="muted">A contribuição manual não marca o item como entregue. Use o botão “Marcar entregue” somente quando receber fisicamente.</p>

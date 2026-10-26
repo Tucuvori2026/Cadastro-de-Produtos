@@ -123,7 +123,7 @@ button.danger{background:#fff5f3;color:#a45d59;border-color:#f0e1dd}button.dange
 <main>
 <div id="msg" class="status hidden"></div>
 <div id="app" class="hidden">
-<div class="topline"><div class="actions header-actions"><button class="danger" id="clearList" type="button">Zerar Lista</button><button class="danger" id="clearItems" type="button">Zerar Itens</button></div></div>
+<div class="topline"><div class="actions header-actions"><button class="danger" id="clearList" type="button">Zerar Lista</button><button class="danger" id="clearItems" type="button">Zerar Itens</button><button class="gold" id="exportPDF" type="button">Exportar PDF</button></div></div>
 <nav class="tabs" aria-label="Seções do painel">
 <button type="button" data-tab="overview" aria-selected="false">Resumo</button>
 <button type="button" data-tab="contributions" aria-selected="true">Pessoas e Contribuições</button>
@@ -201,6 +201,50 @@ $('manualContributionForm').addEventListener('submit',async e=>{e.preventDefault
 const publicListUrl=()=>new URL('lista-participantes.html',location.href).href;
 if($('openList'))$('openList').addEventListener('click',()=>{location.href=publicListUrl()});
 if($('copyLink'))$('copyLink').addEventListener('click',async()=>{const url=publicListUrl();try{await navigator.clipboard.writeText(url);msg('Link público copiado: '+url)}catch{msg('Copie este link para compartilhar: '+url)}});
+
+// Exporta a relação de itens e responsáveis em formato pronto para salvar como PDF.
+$('exportPDF').addEventListener('click',()=>{
+  const collator=new Intl.Collator('pt-BR',{sensitivity:'base',numeric:true});
+  const entries=Object.entries(items).sort((a,b)=>collator.compare(a[1].category||'Sem categoria',b[1].category||'Sem categoria')||collator.compare(a[1].name||'',b[1].name||''));
+  const dateText= new Date().toLocaleDateString('pt-BR');
+  const eventTitle=esc(settings.title||'Lista de contribuições TUCUVORI');
+  const eventDate=settings.date ? new Date(settings.date+'T12:00:00').toLocaleDateString('pt-BR') : '';
+  const eventTime=settings.time||'';
+  const rows=entries.map(([id,it])=>{
+    const people=Object.values(contributions[id]||{});
+    const responsaveis=people.length
+      ? people.map(c=>`<div class="person"><strong>${esc(c.name||'Sem nome')}</strong><span>${Number(c.quantity||0).toLocaleString('pt-BR',{maximumFractionDigits:2})} ${esc(it.unit||'unidades')}${c.delivered?' — Entregue':' — Pendente de entrega'}</span>${c.note?`<small>${esc(c.note)}</small>`:''}</div>`).join('')
+      : '<span class="empty">Nenhum responsável registrado</span>';
+    return `<tr><td><strong>${esc(it.name||'Item sem nome')}</strong><small>${esc(it.category||'Sem categoria')}</small></td><td>${responsaveis}</td></tr>`;
+  }).join('');
+  const win=window.open('','_blank');
+  if(!win){msg('O navegador bloqueou a janela do PDF. Permita pop-ups para este site e tente novamente.',true);return;}
+  win.document.open();
+  win.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${eventTitle}</title><style>
+    *{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#263f37;margin:28px;font-size:12px}
+    header{border-bottom:2px solid #d2b878;padding:0 0 14px;margin-bottom:20px}
+    h1{font-size:22px;margin:0 0 7px;color:#285c4d}p{margin:4px 0;color:#53665c}
+    table{width:100%;border-collapse:collapse;margin-top:15px}thead{display:table-header-group}
+    th{background:#285c4d;color:white;text-align:left;padding:10px;font-size:12px}
+    td{border:1px solid #dfe8df;padding:10px;vertical-align:top}
+    td:first-child{width:34%}td small{display:block;color:#718278;margin-top:5px}
+    .person{padding:5px 0;border-bottom:1px solid #edf0eb;break-inside:avoid}.person:last-child{border-bottom:0}
+    .person strong{display:block;font-size:12px}.person span{display:block;color:#53665c;margin-top:2px}.person small{display:block}
+    .empty{color:#8a9690;font-style:italic}.footer{margin-top:22px;text-align:center;color:#718278;font-size:10px}
+    @page{size:A4;margin:14mm}@media print{body{margin:0}tr{break-inside:avoid}}
+  </style></head><body>
+  <header><h1>${eventTitle}</h1><p>Templo de Umbanda Caboclo Ubirajara e Vovó Rita — T.U.C.U.V.O.R.I.</p>
+  ${eventDate?`<p><strong>Data:</strong> ${eventDate}${eventTime?' · <strong>Horário:</strong> '+esc(eventTime):''}</p>`:''}
+  ${settings.instructions?`<p><strong>Orientações:</strong> ${esc(settings.instructions)}</p>`:''}
+  <p>Lista de itens e responsáveis · Emitida em ${dateText}</p></header>
+  <table><thead><tr><th>Nome do item</th><th>Quem se responsabilizou</th></tr></thead><tbody>
+  ${rows||'<tr><td colspan="2">Nenhum item cadastrado.</td></tr>'}
+  </tbody></table><div class="footer">A casa é de todos. Todos usufruem. Axé a todos!</div>
+  <script>window.addEventListener('load',()=>setTimeout(()=>window.print(),300));<\/script>
+  </body></html>`);
+  win.document.close();
+  msg('Lista preparada para exportação. Na janela de impressão, escolha “Salvar como PDF”.');
+});
 
 // Zerar Lista: remove somente as pessoas/contribuições e mantém os itens cadastrados.
 $('clearList').addEventListener('click',async()=>{

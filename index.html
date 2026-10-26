@@ -116,6 +116,10 @@ button.danger{background:#fff5f3;color:#a45d59;border-color:#f0e1dd}button.dange
 @media(max-width:390px){.stats{grid-template-columns:1fr}.stat{display:flex;align-items:center;justify-content:space-between;gap:12px}.stat strong{margin:0}.stat .muted{font-size:12px}.tabs button{font-size:11px}.panel{padding:15px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important}}
 
+
+.gradient-preview{min-height:92px;border-radius:16px;padding:20px;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:800;box-shadow:0 5px 16px rgba(30,60,45,.12);border:1px solid #ffffff70;margin-top:12px}
+.color-field{display:flex;align-items:center;gap:10px}
+input[type="color"]{width:58px;min-width:58px;height:48px;padding:4px;border-radius:12px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -123,7 +127,7 @@ button.danger{background:#fff5f3;color:#a45d59;border-color:#f0e1dd}button.dange
 <main>
 <div id="msg" class="status hidden"></div>
 <div id="app" class="hidden">
-<div class="topline"><div class="actions header-actions"><button class="danger" id="clearList" type="button">Zerar Lista</button><button class="danger" id="clearItems" type="button">Zerar Itens</button><button class="gold" id="exportPDF" type="button">Exportar PDF</button></div></div>
+<div class="topline"><div class="actions header-actions"><button class="danger" id="clearList" type="button">Zerar Lista</button><button class="danger" id="clearItems" type="button">Zerar Itens</button></div></div>
 <nav class="tabs" aria-label="Seções do painel">
 <button type="button" data-tab="overview" aria-selected="false">Resumo</button>
 <button type="button" data-tab="contributions" aria-selected="true">Pessoas e Contribuições</button>
@@ -139,6 +143,16 @@ button.danger{background:#fff5f3;color:#a45d59;border-color:#f0e1dd}button.dange
 <form id="settingsForm"><label for="eventTitle">Título Principal</label><input id="eventTitle" maxlength="120" required>
 <div class="row"><div><label for="eventDate">Data</label><input id="eventDate" type="date"></div><div><label for="eventTime">Horário</label><input id="eventTime" type="time"></div></div>
 <label for="eventInstructions">Orientações</label><textarea id="eventInstructions" maxlength="1500" placeholder="Informações importantes para quem vai contribuir"></textarea>
+<hr style="border:0;border-top:1px solid #e3eae3;margin:22px 0">
+<h3 style="font-size:16px;margin-bottom:4px">Personalizar cabeçalho da lista de contribuições</h3>
+<p class="muted">Escolha duas cores para criar um degradê. Estas opções serão salvas nas configurações para sincronização com a lista pública.</p>
+<div class="row">
+<div><label for="contributionHeaderColor1">Cor inicial</label><div class="color-field"><input id="contributionHeaderColor1" type="color" value="#214d40"><span id="contributionHeaderColor1Text" class="muted">#214D40</span></div></div>
+<div><label for="contributionHeaderColor2">Cor final</label><div class="color-field"><input id="contributionHeaderColor2" type="color" value="#477d65"><span id="contributionHeaderColor2Text" class="muted">#477D65</span></div></div>
+</div>
+<label for="contributionHeaderAngle">Direção do degradê</label>
+<select id="contributionHeaderAngle"><option value="90deg">Horizontal (esquerda para direita)</option><option value="135deg" selected>Diagonal</option><option value="180deg">Vertical (cima para baixo)</option><option value="45deg">Diagonal suave</option></select>
+<div id="contributionGradientPreview" class="gradient-preview" aria-live="polite">Pré-visualização do cabeçalho</div>
 <div class="actions"><button type="submit">Salvar Configurações</button></div></form></section>
 </div>
 <div class="tab-panel" data-tab-panel="items" hidden>
@@ -172,7 +186,11 @@ function msg(text,error=false){const el=$('msg');if(!el)return;el.textContent=te
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function num(n){return Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:2})}
 function cleanSubscriptions(){unsubs.forEach(f=>f());unsubs=[]}
-function subscribeData(){cleanSubscriptions();unsubs.push(onValue(ref(db,'settings'),s=>{settings=s.val()||{};$('eventTitle').value=settings.title||'Lista de contribuições TUCUVORI';$('eventDate').value=settings.date||'';$('eventTime').value=settings.time||'';$('eventInstructions').value=settings.instructions||'';render()},e=>msg('Não foi possível ler as configurações: '+e.message,true)));unsubs.push(onValue(ref(db,'items'),s=>{items=s.val()||{};render()},e=>msg('Erro ao carregar itens: '+e.message,true)));unsubs.push(onValue(ref(db,'contributions'),s=>{contributions=s.val()||{};render()},e=>msg('Erro ao carregar contribuições: '+e.message,true)))}
+function subscribeData(){cleanSubscriptions();unsubs.push(onValue(ref(db,'settings'),s=>{settings=s.val()||{};$('eventTitle').value=settings.title||'Lista de contribuições TUCUVORI';$('eventDate').value=settings.date||'';$('eventTime').value=settings.time||'';$('eventInstructions').value=settings.instructions||'';
+$('contributionHeaderColor1').value=/^#[0-9a-f]{6}$/i.test(settings.contributionHeaderColor1||'')?settings.contributionHeaderColor1:'#214d40';
+$('contributionHeaderColor2').value=/^#[0-9a-f]{6}$/i.test(settings.contributionHeaderColor2||'')?settings.contributionHeaderColor2:'#477d65';
+$('contributionHeaderAngle').value=['45deg','90deg','135deg','180deg'].includes(settings.contributionHeaderAngle)?settings.contributionHeaderAngle:'135deg';
+updateContributionGradientPreview();render()},e=>msg('Não foi possível ler as configurações: '+e.message,true)));unsubs.push(onValue(ref(db,'items'),s=>{items=s.val()||{};render()},e=>msg('Erro ao carregar itens: '+e.message,true)));unsubs.push(onValue(ref(db,'contributions'),s=>{contributions=s.val()||{};render()},e=>msg('Erro ao carregar contribuições: '+e.message,true)))}
 function render(){const collator=new Intl.Collator('pt-BR',{sensitivity:'base',numeric:true});const cats=[...new Set(Object.values(items).map(x=>x.category).filter(Boolean))].sort((a,b)=>collator.compare(a,b));$('categoriesList').innerHTML=cats.map(c=>`<option value="${esc(c)}">`).join('');const manualSelect=$('manualItem');if(manualSelect){const previous=manualSelect.value;manualSelect.innerHTML='<option value="">Selecione um item</option>'+[...Object.entries(items)].sort((a,b)=>collator.compare(a[1].category||'Sem categoria',b[1].category||'Sem categoria')||collator.compare(a[1].name||'',b[1].name||'')).map(([id,it])=>`<option value="${esc(id)}">${esc(it.category||'Sem categoria')} — ${esc(it.name||'')}</option>`).join('');if(items[previous])manualSelect.value=previous;}const entries=Object.entries(items).sort((a,b)=>collator.compare(a[1].category||'Sem categoria',b[1].category||'Sem categoria')||collator.compare(a[1].name||'',b[1].name||''));let people=0,pending=0;const html=entries.map(([id,it])=>{const cs=Object.entries(contributions[id]||{}).map(([uid,c])=>({uid,...c}));people+=cs.length;const childCount=new Set(cs.map(c=>(c.name||'').trim().toLocaleLowerCase('pt-BR')).filter(Boolean)).size;const assumed=cs.reduce((sum,c)=>sum+Number(c.quantity||0),0);const need=Number(it.required||0),remaining=Math.max(0,need-assumed);if(need>0&&remaining>0)pending++;return `<article class="item"><div class="itemhead"><div><span class="pill">${esc(it.category||'Sem categoria')}</span><h3 style="margin-top:9px">${esc(it.name)}</h3><div class="muted">${childCount} filho(s) contribuíram com este item${need>0?` · ${num(assumed)} de ${num(need)} ${esc(it.unit||'unidades')} assumidos · faltam ${num(remaining)}`:''}</div></div><div class="actions"><button class="secondary" data-edit="${esc(id)}">Editar</button><button class="danger" data-delete="${esc(id)}">Excluir</button></div></div><div class="progress"><span style="width:${need?Math.min(100,assumed/need*100):0}%"></span></div>${cs.length?cs.map(c=>`<div class="person"><div><strong>${esc(c.name||'Sem nome')}</strong><small>${num(c.quantity)} ${esc(it.unit||'unidades')}${c.note?' · '+esc(c.note):''} · ${c.delivered?'Entregue':'Compromisso assumido'}</small></div><div class="actions"><button class="secondary" data-delivered="${esc(id)}|${esc(c.uid)}" data-value="${c.delivered?'false':'true'}">${c.delivered?'Desmarcar entrega':'Marcar entregue'}</button><button class="danger" data-removecon="${esc(id)}|${esc(c.uid)}">Tirar pessoa do item</button></div></div>`).join(''):'<p class="muted">Ainda não há responsáveis por este item.</p>'}</article>`}).join('');$('itemsList').innerHTML=html||'<p class="muted">Nenhum item cadastrado. Use o formulário acima para começar.</p>';
 $('totalItems').textContent=entries.length;$('totalPeople').textContent=people;$('pendingItems').textContent=pending;
 const overview=$('overviewItems');
@@ -191,7 +209,19 @@ if(overview){
 if($('welcome'))$('welcome').textContent='Painel conectado ao Firebase.';
 } 
 $('app').classList.remove('hidden');subscribeData();
-$('settingsForm').addEventListener('submit',async e=>{e.preventDefault();if(!adminOK)return;try{await update(ref(db,'settings'),{title:$('eventTitle').value.trim(),date:$('eventDate').value,time:$('eventTime').value,instructions:$('eventInstructions').value.trim(),updatedAt:Date.now(),updatedBy:currentUser.uid});msg('Configurações salvas. A página pública será atualizada automaticamente.')}catch(err){msg('Erro ao salvar configurações: '+err.message,true)}});
+function updateContributionGradientPreview(){
+ const c1=$('contributionHeaderColor1').value,c2=$('contributionHeaderColor2').value,angle=$('contributionHeaderAngle').value;
+ $('contributionGradientPreview').style.background=`linear-gradient(${angle},${c1},${c2})`;
+ $('contributionHeaderColor1Text').textContent=c1.toUpperCase();
+ $('contributionHeaderColor2Text').textContent=c2.toUpperCase();
+}
+['contributionHeaderColor1','contributionHeaderColor2','contributionHeaderAngle'].forEach(id=>$(id).addEventListener('input',updateContributionGradientPreview));
+updateContributionGradientPreview();
+$('settingsForm').addEventListener('submit',async e=>{e.preventDefault();if(!adminOK)return;try{await update(ref(db,'settings'),{title:$('eventTitle').value.trim(),date:$('eventDate').value,time:$('eventTime').value,instructions:$('eventInstructions').value.trim(),
+contributionHeaderColor1:$('contributionHeaderColor1').value,
+contributionHeaderColor2:$('contributionHeaderColor2').value,
+contributionHeaderAngle:$('contributionHeaderAngle').value,
+updatedAt:Date.now(),updatedBy:currentUser.uid});msg('Configurações salvas. A página pública será atualizada automaticamente.')}catch(err){msg('Erro ao salvar configurações: '+err.message,true)}});
 function resetItemForm(){$('itemForm').reset();$('itemId').value='';$('itemFormTitle').textContent='Cadastrar item';$('cancelEdit').classList.add('hidden')}
 $('itemForm').addEventListener('submit',async e=>{e.preventDefault();if(!adminOK)return;const id=$('itemId').value||crypto.randomUUID();const old=items[id]||{};const qtyText=$('itemQty').value.trim();const payload={name:$('itemName').value.trim(),category:$('itemCategory').value.trim(),required:qtyText===''?0:Number(qtyText),unit:$('itemUnit').value,createdAt:old.createdAt||Date.now(),updatedAt:Date.now(),updatedBy:currentUser.uid};if(!payload.name||!payload.category||!Number.isFinite(payload.required)||payload.required<0||(qtyText!==''&&payload.required<=0)){msg('Preencha o nome e a categoria. A quantidade é opcional; se informada, deve ser maior que zero.',true);return}try{await set(ref(db,'items/'+id),payload);resetItemForm();msg('Item salvo com sucesso.')}catch(err){msg('Erro ao salvar item: '+err.message,true)}});
 $('cancelEdit').addEventListener('click',resetItemForm);
@@ -201,50 +231,6 @@ $('manualContributionForm').addEventListener('submit',async e=>{e.preventDefault
 const publicListUrl=()=>new URL('lista-participantes.html',location.href).href;
 if($('openList'))$('openList').addEventListener('click',()=>{location.href=publicListUrl()});
 if($('copyLink'))$('copyLink').addEventListener('click',async()=>{const url=publicListUrl();try{await navigator.clipboard.writeText(url);msg('Link público copiado: '+url)}catch{msg('Copie este link para compartilhar: '+url)}});
-
-// Exporta a relação de itens e responsáveis em formato pronto para salvar como PDF.
-$('exportPDF').addEventListener('click',()=>{
-  const collator=new Intl.Collator('pt-BR',{sensitivity:'base',numeric:true});
-  const entries=Object.entries(items).sort((a,b)=>collator.compare(a[1].category||'Sem categoria',b[1].category||'Sem categoria')||collator.compare(a[1].name||'',b[1].name||''));
-  const dateText= new Date().toLocaleDateString('pt-BR');
-  const eventTitle=esc(settings.title||'Lista de contribuições TUCUVORI');
-  const eventDate=settings.date ? new Date(settings.date+'T12:00:00').toLocaleDateString('pt-BR') : '';
-  const eventTime=settings.time||'';
-  const rows=entries.map(([id,it])=>{
-    const people=Object.values(contributions[id]||{});
-    const responsaveis=people.length
-      ? people.map(c=>`<div class="person"><strong>${esc(c.name||'Sem nome')}</strong><span>${Number(c.quantity||0).toLocaleString('pt-BR',{maximumFractionDigits:2})} ${esc(it.unit||'unidades')}${c.delivered?' — Entregue':' — Pendente de entrega'}</span>${c.note?`<small>${esc(c.note)}</small>`:''}</div>`).join('')
-      : '<span class="empty">Nenhum responsável registrado</span>';
-    return `<tr><td><strong>${esc(it.name||'Item sem nome')}</strong><small>${esc(it.category||'Sem categoria')}</small></td><td>${responsaveis}</td></tr>`;
-  }).join('');
-  const win=window.open('','_blank');
-  if(!win){msg('O navegador bloqueou a janela do PDF. Permita pop-ups para este site e tente novamente.',true);return;}
-  win.document.open();
-  win.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${eventTitle}</title><style>
-    *{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#263f37;margin:28px;font-size:12px}
-    header{border-bottom:2px solid #d2b878;padding:0 0 14px;margin-bottom:20px}
-    h1{font-size:22px;margin:0 0 7px;color:#285c4d}p{margin:4px 0;color:#53665c}
-    table{width:100%;border-collapse:collapse;margin-top:15px}thead{display:table-header-group}
-    th{background:#285c4d;color:white;text-align:left;padding:10px;font-size:12px}
-    td{border:1px solid #dfe8df;padding:10px;vertical-align:top}
-    td:first-child{width:34%}td small{display:block;color:#718278;margin-top:5px}
-    .person{padding:5px 0;border-bottom:1px solid #edf0eb;break-inside:avoid}.person:last-child{border-bottom:0}
-    .person strong{display:block;font-size:12px}.person span{display:block;color:#53665c;margin-top:2px}.person small{display:block}
-    .empty{color:#8a9690;font-style:italic}.footer{margin-top:22px;text-align:center;color:#718278;font-size:10px}
-    @page{size:A4;margin:14mm}@media print{body{margin:0}tr{break-inside:avoid}}
-  </style></head><body>
-  <header><h1>${eventTitle}</h1><p>Templo de Umbanda Caboclo Ubirajara e Vovó Rita — T.U.C.U.V.O.R.I.</p>
-  ${eventDate?`<p><strong>Data:</strong> ${eventDate}${eventTime?' · <strong>Horário:</strong> '+esc(eventTime):''}</p>`:''}
-  ${settings.instructions?`<p><strong>Orientações:</strong> ${esc(settings.instructions)}</p>`:''}
-  <p>Lista de itens e responsáveis · Emitida em ${dateText}</p></header>
-  <table><thead><tr><th>Nome do item</th><th>Quem se responsabilizou</th></tr></thead><tbody>
-  ${rows||'<tr><td colspan="2">Nenhum item cadastrado.</td></tr>'}
-  </tbody></table><div class="footer">A casa é de todos. Todos usufruem. Axé a todos!</div>
-  <script>window.addEventListener('load',()=>setTimeout(()=>window.print(),300));<\/script>
-  </body></html>`);
-  win.document.close();
-  msg('Lista preparada para exportação. Na janela de impressão, escolha “Salvar como PDF”.');
-});
 
 // Zerar Lista: remove somente as pessoas/contribuições e mantém os itens cadastrados.
 $('clearList').addEventListener('click',async()=>{

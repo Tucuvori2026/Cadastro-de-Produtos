@@ -36,7 +36,7 @@ button.gold{background:var(--gold);color:#25352b}
 .item{border:1px solid var(--line);border-radius:14px;padding:17px;margin:13px 0;background:#fff;box-shadow:0 3px 12px #173b2508}
 .itemhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.pill{display:inline-block;border-radius:99px;background:#e8f1eb;color:var(--green);padding:5px 10px;font-size:11px;font-weight:750;border:1px solid #d9e8dc}
 .person{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line);align-items:center}.person small{display:block;color:var(--muted);margin-top:2px}
-.progress{height:8px;background:#e5ebe5;border-radius:9px;overflow:hidden;margin:11px 0}.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--green2),var(--gold));border-radius:9px}
+.progress{height:8px;background:#e5ebe5;border-radius:99px;overflow:hidden;margin:11px 0}.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--green2),var(--gold));border-radius:99px}
 .topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.topline>p{margin:0}.topline .actions{margin-top:0}
 .footer{text-align:center;color:var(--green);padding:28px 12px;font:600 15px Georgia,"Times New Roman",serif}
 .header-actions{display:flex;gap:9px;flex-wrap:wrap}.header-actions button{white-space:nowrap}
@@ -121,6 +121,7 @@ button.danger{background:#fff5f3;color:#a45d59;border-color:#f0e1dd}button.dange
 <body>
 <header><div class="eyebrow">T.U.C.U.V.O.R.I.</div><h1>Painel de Contribuições</h1><p>Templo de Umbanda Caboclo Ubirajara e Vovó Rita</p></header>
 <main>
+<div id="msg" class="status hidden"></div>
 <div id="app" class="hidden">
 <div class="topline"><div class="actions header-actions"><button class="danger" id="clearList" type="button">Zerar Lista</button><button class="danger" id="clearItems" type="button">Zerar Itens</button></div></div>
 <nav class="tabs" aria-label="Seções do painel">
@@ -167,8 +168,7 @@ import { getDatabase, ref, onValue, set, update, remove, get, serverTimestamp } 
 const firebaseConfig={apiKey:"AIzaSyAQCyebKjH-m1ToY5DTBzMq_qG8XLeAe2M",authDomain:"controle-de-fios-de-conta.firebaseapp.com",databaseURL:"https://controle-de-fios-de-conta-default-rtdb.firebaseio.com",projectId:"controle-de-fios-de-conta",storageBucket:"controle-de-fios-de-conta.firebasestorage.app",messagingSenderId:"478052515254",appId:"1:478052515254:web:def3fbb76af0df511c5517"};
 const app=initializeApp(firebaseConfig),db=getDatabase(app);
 const $=id=>document.getElementById(id);let currentUser={uid:'sem-login'},items={},contributions={},settings={},adminOK=true,unsubs=[];
-function msg(text,error=false){$('msg').textContent=text;$('msg').classList.toggle('error',error);$('msg').classList.remove('hidden')}
-function accessMsg(text,error=false){$('accessMsg').textContent=text;$('accessMsg').classList.toggle('error',error);$('accessMsg').classList.remove('hidden')}
+function msg(text,error=false){const el=$('msg');if(!el)return;el.textContent=text;el.classList.toggle('error',error);el.classList.remove('hidden')}
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function num(n){return Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:2})}
 function cleanSubscriptions(){unsubs.forEach(f=>f());unsubs=[]}
@@ -199,8 +199,9 @@ $('itemsList').addEventListener('click',async e=>{const b=e.target.closest('butt
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(!b)return;const tab=b.dataset.tab;document.querySelectorAll('.tabs button[data-tab]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));document.querySelectorAll('.tab-panel[data-tab-panel]').forEach(panel=>panel.hidden=panel.dataset.tabPanel!==tab);});
 $('manualContributionForm').addEventListener('submit',async e=>{e.preventDefault();if(!adminOK)return;const itemId=$('manualItem').value,name=$('manualName').value.trim(),quantity=Number($('manualQty').value),note=$('manualNote').value.trim();if(!items[itemId]){msg('Selecione um item válido.',true);return}if(!name||!Number.isFinite(quantity)||quantity<=0){msg('Informe o nome e uma quantidade maior que zero.',true);return}try{const uid='manual-'+crypto.randomUUID();await set(ref(db,`contributions/${itemId}/${uid}`),{name,quantity,note,delivered:false,createdAt:Date.now(),createdBy:currentUser.uid,source:'admin_manual'});await set(ref(db,'adminLogs/'+crypto.randomUUID()),{action:'admin_add_manual_contribution',itemId,participantUid:uid,name,quantity,by:currentUser.uid,at:Date.now()});$('manualName').value='';$('manualQty').value='1';$('manualNote').value='';msg('Pessoa adicionada ao item com sucesso.');}catch(err){msg('Não foi possível adicionar a pessoa: '+err.message,true)}});
 const publicListUrl=()=>new URL('lista-participantes.html',location.href).href;
-$('openList').addEventListener('click',()=>{location.href=publicListUrl()});
-$('copyLink').addEventListener('click',async()=>{const url=publicListUrl();try{await navigator.clipboard.writeText(url);msg('Link público copiado: '+url)}catch{msg('Copie este link para compartilhar: '+url)}});
+if($('openList'))$('openList').addEventListener('click',()=>{location.href=publicListUrl()});
+if($('copyLink'))$('copyLink').addEventListener('click',async()=>{const url=publicListUrl();try{await navigator.clipboard.writeText(url);msg('Link público copiado: '+url)}catch{msg('Copie este link para compartilhar: '+url)}});
+
 // Zerar Lista: remove somente as pessoas/contribuições e mantém os itens cadastrados.
 $('clearList').addEventListener('click',async()=>{
   const count=Object.values(contributions).reduce((sum,byItem)=>sum+(byItem&&typeof byItem==='object'?Object.keys(byItem).length:0),0);

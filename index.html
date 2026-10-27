@@ -47,14 +47,24 @@ button.gold{background:var(--gold);color:#25352b}
 .person-form{border:1px solid #dbe7df;border-radius:13px;padding:16px;margin:14px 0 18px;background:#f8faf8}
 .person-form h3{font-size:16px;color:var(--green);margin-bottom:5px}
 #itemsList .item{transition:border-color .15s,box-shadow .15s}#itemsList .item:hover{border-color:#c5d9ce;box-shadow:0 7px 20px #173b2510}
+
+/* Estilos da tabela de Histórico */
+.history-table-wrapper{overflow-x:auto;margin-top:14px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.history-table{width:100%;border-collapse:collapse;text-align:left;font-size:13px}
+.history-table th{background:#f0f5f1;color:var(--green);padding:12px 14px;font-weight:750;border-bottom:1px solid var(--line)}
+.history-table td{padding:12px 14px;border-bottom:1px solid #edf2ee;color:var(--ink)}
+.history-table tr:last-child td{border-bottom:none}
+.history-table tr:hover td{background:#f9fbf9}
+.search-box{margin-bottom:14px;max-width:400px}
+
 @media(min-width:1000px){.tab-panel[data-tab-panel="contributions"] .panel:first-child{max-width:100%}}
 @media(max-width:760px){
  header{padding:22px 18px 24px}header:after{right:-135px}h1{font-size:26px}
  main{margin:16px auto;padding:0 12px 30px}
  .panel{padding:17px;border-radius:14px;margin-bottom:13px}.panel h2{font-size:19px}
  .stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.stat{padding:12px 10px}.stat strong{font-size:22px}.stat .muted{font-size:11px;line-height:1.35}
- .tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:6px;padding:6px;margin:14px 0}
- .tabs button{padding:10px 8px;font-size:12px;min-height:44px}
+ .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:6px;padding:6px;margin:14px 0}
+ .tabs button{padding:10px 8px;font-size:11px;min-height:44px}
  .topline{align-items:flex-start}.topline .actions{width:100%}.topline .actions button{flex:1}
  .header-actions{width:100%}.header-actions button{flex:1}
  .itemhead{display:block}.itemhead>.actions{margin-top:12px}
@@ -62,11 +72,11 @@ button.gold{background:var(--gold);color:#25352b}
  .row{display:block}.row>*{min-width:100%}.row>div+div{margin-top:7px}
  .actions button{flex:1}.person-form{padding:12px}
  input,textarea,select{font-size:16px}
+ .history-table th, .history-table td{padding:10px 8px;font-size:12px}
 }
-@media(max-width:390px){.stats{grid-template-columns:1fr}.stat{display:flex;align-items:center;justify-content:space-between}.stat strong{margin:0}.tabs button{font-size:11px}.panel{padding:14px}}
+@media(max-width:390px){.stats{grid-template-columns:1fr}.stat{display:flex;align-items:center;justify-content:space-between}.stat strong{margin:0}.tabs button{font-size:10px}.panel{padding:14px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
 
-/* Refinamento visual: experiência mobile delicada, com aparência de app */
 :root{--green:#285c4d;--green2:#397661;--green3:#e9f2ec;--gold:#d2b878;--ink:#263f37;--muted:#788b82;--bg:#f5f7f3;--line:#e3eae3;--white:#fff;--red:#a85d59;--shadow:0 5px 20px rgba(42,78,61,.055)}
 *{font-family:'DM Sans',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 body{font-size:14px;line-height:1.6;background:linear-gradient(180deg,#edf4ee 0,#f7f8f5 300px,#f5f7f3 100%);-webkit-font-smoothing:antialiased}
@@ -104,7 +114,7 @@ button.danger{background:#fff5f3;color:#a45d59;border-color:#f0e1dd}button.dange
  main{margin:17px auto;padding:0 13px 30px}
  .panel{padding:17px;border-radius:20px;margin-bottom:13px}.panel h2{font-size:18px;margin-bottom:13px}
  .topline{display:block}.topline>p{margin-bottom:12px}.header-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.header-actions button{font-size:12px;padding:10px 9px;min-height:44px}.header-actions #clearList,.header-actions #clearItems{min-height:42px}
- .tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:6px;padding:6px;margin:15px 0 13px;border-radius:17px}
+ .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:6px;padding:6px;margin:15px 0 13px;border-radius:17px}
  .tabs button{padding:10px 7px;font-size:11px;line-height:1.25;min-height:45px;border-radius:12px}
  .stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.stat{padding:12px 9px;border-radius:15px;min-width:0}.stat strong{font-size:23px}.stat .muted{font-size:10px;line-height:1.35;overflow-wrap:anywhere}
  .item{padding:15px;border-radius:17px}.itemhead{display:block}.itemhead>.actions{margin-top:12px}.itemhead>.actions button{font-size:12px;padding:9px 10px;min-height:42px}
@@ -115,7 +125,6 @@ button.danger{background:#fff5f3;color:#a45d59;border-color:#f0e1dd}button.dange
 }
 @media(max-width:390px){.stats{grid-template-columns:1fr}.stat{display:flex;align-items:center;justify-content:space-between;gap:12px}.stat strong{margin:0}.stat .muted{font-size:12px}.tabs button{font-size:11px}.panel{padding:15px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important}}
-
 
 .gradient-preview{min-height:92px;border-radius:16px;padding:20px;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:800;box-shadow:0 5px 16px rgba(30,60,45,.12);border:1px solid #ffffff70;margin-top:12px}
 .color-field{display:flex;align-items:center;gap:10px}
@@ -139,14 +148,31 @@ input[type="color"]{width:58px;min-width:58px;height:48px;padding:4px;border-rad
 <div class="topline"><div class="actions header-actions"><button class="danger" id="clearList" type="button">Zerar Lista</button><button class="danger" id="clearItems" type="button">Zerar Itens</button></div></div>
 <nav class="tabs" aria-label="Seções do painel">
 <button type="button" data-tab="overview" aria-selected="false">Resumo</button>
-<button type="button" data-tab="contributions" aria-selected="true">Pessoas e Contribuições</button>
+<button type="button" data-tab="contributions" aria-selected="true">Contribuições</button>
+<button type="button" data-tab="history" aria-selected="false">Histórico</button>
 <button type="button" data-tab="items" aria-selected="false">Cadastro de Itens</button>
 <button type="button" data-tab="settings" aria-selected="false">Configurações</button>
 </nav>
+
 <div class="tab-panel" data-tab-panel="overview" hidden>
 <section class="panel"><h2>Resumo da Lista</h2><div class="stats"><div class="stat"><span class="muted">Itens Cadastrados</span><strong id="totalItems">0</strong></div><div class="stat"><span class="muted">Contribuições Registradas</span><strong id="totalPeople">0</strong></div><div class="stat"><span class="muted">Itens com Pendência</span><strong id="pendingItems">0</strong></div></div></section>
 <section class="panel"><h2>Visão geral dos Itens</h2><p class="muted">Acompanhe os itens cadastrados, responsáveis e andamento das contribuições em tempo real.</p><div id="overviewItems"><p class="muted">Carregando visão geral…</p></div></section>
 </div>
+
+<!-- ABA HISTÓRICO -->
+<div class="tab-panel" data-tab-panel="history" hidden>
+<section class="panel">
+<h2>Histórico de Contribuições</h2>
+<p class="muted">Lista completa com o nome das pessoas e suas respectivas contribuições.</p>
+<div class="search-box">
+  <input type="text" id="historySearch" placeholder="🔍 Buscar por pessoa ou item...">
+</div>
+<div id="historyContainer">
+  <p class="muted">Carregando histórico…</p>
+</div>
+</section>
+</div>
+
 <div class="tab-panel" data-tab-panel="settings" hidden>
 <section class="panel"><h2>Configurações do Evento</h2>
 <form id="settingsForm"><label for="eventTitle">Título Principal</label><input id="eventTitle" maxlength="120" required>
@@ -172,12 +198,14 @@ input[type="color"]{width:58px;min-width:58px;height:48px;padding:4px;border-rad
 <div id="contributionGradientPreview" class="gradient-preview" aria-live="polite">Pré-visualização do cabeçalho</div>
 <div class="actions"><button type="submit">Salvar Configurações</button></div></form></section>
 </div>
+
 <div class="tab-panel" data-tab-panel="items" hidden>
 <section class="panel"><h2 id="itemFormTitle">Cadastrar Item</h2><form id="itemForm">
 <input id="itemId" type="hidden"><div class="row"><div><label for="itemName">Nome do Item</label><input id="itemName" maxlength="120" required></div><div><label for="itemCategory">Categoria</label><input id="itemCategory" maxlength="60" list="categoriesList" required placeholder="Ex.: Alimentos"><datalist id="categoriesList"></datalist></div></div>
 <div class="row"><div><label for="itemQty">Quantidade Necessária (Opcional)</label><input id="itemQty" type="number" min="0.01" max="100000" step="0.01" placeholder="Deixe em branco se não houver quantidade definida"></div><div><label for="itemUnit">Unidade de Medida</label><select id="itemUnit"><option value="unidades">Unidades</option><option value="kg">Quilogramas (kg)</option><option value="pacotes">Pacotes</option><option value="litros">Litros</option><option value="porções">Porções</option><option value="caixas">Caixas</option><option value="outros">Outros</option></select></div></div>
 <div class="actions"><button type="submit">Salvar item</button><button type="button" class="secondary hidden" id="cancelEdit">Cancelar edição</button></div></form></section>
 </div>
+
 <div class="tab-panel" data-tab-panel="contributions">
 <section class="panel"><div class="topline"><h2>Adicionar Pessoa Manualmente</h2><span class="pill">Uso Administrativo</span></div>
 <p class="muted">Use quando alguém confirmar por mensagem o item que vai levar, mesmo que a lista pública esteja fechada. A pessoa será registrada no item escolhido e aparecerá na lista pública.</p>
@@ -237,6 +265,78 @@ $('contributionHeaderColor1').value=/^#[0-9a-f]{6}$/i.test(settings.contribution
 $('contributionHeaderColor2').value=/^#[0-9a-f]{6}$/i.test(settings.contributionHeaderColor2||'')?settings.contributionHeaderColor2:'#477d65';
 $('contributionHeaderAngle').value=['45deg','90deg','135deg','180deg'].includes(settings.contributionHeaderAngle)?settings.contributionHeaderAngle:'135deg';
 updateContributionGradientPreview();render()},e=>msg('Não foi possível ler as configurações: '+e.message,true)));unsubs.push(onValue(ref(db,'items'),s=>{items=s.val()||{};render()},e=>msg('Erro ao carregar itens: '+e.message,true)));unsubs.push(onValue(ref(db,'contributions'),s=>{contributions=s.val()||{};render()},e=>msg('Erro ao carregar contribuições: '+e.message,true)))}
+
+function renderHistory(){
+  const container=$('historyContainer');
+  if(!container)return;
+  const filter=($('historySearch')?.value||'').trim().toLowerCase();
+  const historyList=[];
+
+  Object.entries(contributions).forEach(([itemId, itemContributions])=>{
+    const itemInfo=items[itemId]||{name:'Item Desconhecido',category:'Sem Categoria',unit:'unidades'};
+    Object.entries(itemContributions||{}).forEach(([uid, c])=>{
+      historyList.push({
+        uid,
+        itemId,
+        name:c.name||'Sem nome',
+        itemName:itemInfo.name,
+        category:itemInfo.category||'Sem Categoria',
+        quantity:c.quantity||0,
+        unit:itemInfo.unit||'unidades',
+        delivered:!!c.delivered,
+        note:c.note||'',
+        createdAt:c.createdAt||0
+      });
+    });
+  });
+
+  const collator=new Intl.Collator('pt-BR',{sensitivity:'base'});
+  historyList.sort((a,b)=>collator.compare(a.name, b.name));
+
+  const filtered=historyList.filter(h=>
+    h.name.toLowerCase().includes(filter)||
+    h.itemName.toLowerCase().includes(filter)||
+    h.category.toLowerCase().includes(filter)
+  );
+
+  if(!filtered.length){
+    container.innerHTML=filter
+      ? '<p class="muted">Nenhuma contribuição encontrada para a busca.</p>'
+      : '<p class="muted">Nenhuma contribuição registrada no momento.</p>';
+    return;
+  }
+
+  const tableHtml=`
+    <div class="history-table-wrapper">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Item Contribuído</th>
+            <th>Categoria</th>
+            <th>Quantidade</th>
+            <th>Status</th>
+            <th>Observação</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.map(h=>`
+            <tr>
+              <td><strong>${esc(h.name)}</strong></td>
+              <td>${esc(h.itemName)}</td>
+              <td><span class="pill">${esc(h.category)}</span></td>
+              <td>${num(h.quantity)} ${esc(h.unit)}</td>
+              <td><span class="pill" style="background:${h.delivered?'#e8f5e9':'#fff3e0'};color:${h.delivered?'#2e7d32':'#e65100'}">${h.delivered?'Entregue':'Pendente'}</span></td>
+              <td><small class="muted">${esc(h.note||'-')}</small></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  container.innerHTML=tableHtml;
+}
+
 function render(){const collator=new Intl.Collator('pt-BR',{sensitivity:'base',numeric:true});const cats=[...new Set(Object.values(items).map(x=>x.category).filter(Boolean))].sort((a,b)=>collator.compare(a,b));$('categoriesList').innerHTML=cats.map(c=>`<option value="${esc(c)}">`).join('');const manualSelect=$('manualItem');if(manualSelect){const previous=manualSelect.value;manualSelect.innerHTML='<option value="">Selecione um item</option>'+[...Object.entries(items)].sort((a,b)=>collator.compare(a[1].category||'Sem categoria',b[1].category||'Sem categoria')||collator.compare(a[1].name||'',b[1].name||'')).map(([id,it])=>`<option value="${esc(id)}">${esc(it.category||'Sem categoria')} — ${esc(it.name||'')}</option>`).join('');if(items[previous])manualSelect.value=previous;}const entries=Object.entries(items).sort((a,b)=>collator.compare(a[1].category||'Sem categoria',b[1].category||'Sem categoria')||collator.compare(a[1].name||'',b[1].name||''));let people=0,pending=0;const html=entries.map(([id,it])=>{const cs=Object.entries(contributions[id]||{}).map(([uid,c])=>({uid,...c}));people+=cs.length;const childCount=new Set(cs.map(c=>(c.name||'').trim().toLocaleLowerCase('pt-BR')).filter(Boolean)).size;const assumed=cs.reduce((sum,c)=>sum+Number(c.quantity||0),0);const need=Number(it.required||0),remaining=Math.max(0,need-assumed);if(need>0&&remaining>0)pending++;return `<article class="item"><div class="itemhead"><div><span class="pill">${esc(it.category||'Sem categoria')}</span><h3 style="margin-top:9px">${esc(it.name)}</h3><div class="muted">${childCount} filho(s) contribuíram com este item${need>0?` · ${num(assumed)} de ${num(need)} ${esc(it.unit||'unidades')} assumidos · faltam ${num(remaining)}`:''}</div></div><div class="actions"><button class="secondary" data-edit="${esc(id)}">Editar</button><button class="danger" data-delete="${esc(id)}">Excluir</button></div></div><div class="progress"><span style="width:${need?Math.min(100,assumed/need*100):0}%"></span></div>${cs.length?cs.map(c=>`<div class="person"><div><strong>${esc(c.name||'Sem nome')}</strong><small>${num(c.quantity)} ${esc(it.unit||'unidades')}${c.note?' · '+esc(c.note):''} · ${c.delivered?'Entregue':'Compromisso assumido'}</small></div><div class="actions"><button class="secondary" data-delivered="${esc(id)}|${esc(c.uid)}" data-value="${c.delivered?'false':'true'}">${c.delivered?'Desmarcar entrega':'Marcar entregue'}</button><button class="danger" data-removecon="${esc(id)}|${esc(c.uid)}">Tirar pessoa do item</button></div></div>`).join(''):'<p class="muted">Ainda não há responsáveis por este item.</p>'}</article>`}).join('');$('itemsList').innerHTML=html||'<p class="muted">Nenhum item cadastrado. Use o formulário acima para começar.</p>';
 $('totalItems').textContent=entries.length;$('totalPeople').textContent=people;$('pendingItems').textContent=pending;
 const overview=$('overviewItems');
@@ -249,11 +349,15 @@ if(overview){
     const remaining=need>0?Math.max(0,need-assumed):0;
     const percent=need>0?Math.min(100,assumed/need*100):0;
     const peopleHtml=cs.length?`<div style="margin-top:12px">${cs.map(c=>`<div class="person"><div><strong>${esc(c.name||'Sem nome')}</strong><small>${num(c.quantity)} ${esc(it.unit||'unidades')} · ${c.delivered?'Entregue':'Compromisso assumido'}${c.note?' · '+esc(c.note):''}</small></div><span class="pill">${c.delivered?'Recebido':'Pendente de entrega'}</span></div>`).join('')}</div>`:'<p class="muted" style="margin-top:12px">Ainda não há responsáveis por este item.</p>';
-    return `<article class="item"><div class="itemhead"><div><span class="pill">${esc(it.category||'Sem categoria')}</span><h3 style="margin-top:9px">${esc(it.name||'Item sem nome')}</h3></div><span class="pill">${cs.length} contribuição(ões)</span></div>${need>0?`<p class="muted">Assumido: <strong>${num(assumed)} de ${num(need)} ${esc(it.unit||'unidades')}</strong> · Falta: <strong>${num(remaining)} ${esc(it.unit||'unidades')}</strong></p><div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(percent)}"><span style="width:${percent}%"></span></div>`:`<p class="muted">Quantidade necessária não definida · ${num(assumed)} ${esc(it.unit||'unidades')} assumidos</p>`}<p class="muted">Quantidade entregue: ${num(delivered)} ${esc(it.unit||'unidades')}</p>${peopleHtml}</article>`;
+    return `<article class="item"><div class="itemhead"><div><span class="pill">${esc(it.category||'Sem categoria')}</span><h3 style="margin-top:9px">${esc(it.name||'Item sem nome')}</h3></div><span class="pill">${cs.length} contribuição(ões)</span></div>${need>0?`<p class="muted">Assumido: <strong>${num(assumed)} de ${num(need)} ${esc(it.unit||'unidades')}</strong> · Falta: <strong>${num(remaining)} ${esc(it.unit||'unidades')}</strong></p><div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(percent)}"><span style="width:${percent}%"></span></div>`:`<p class="muted">Quantidade necessária não definida · ${num(assumed)} ${esc(it.unit||'unidades')} assumidos</p>`}<p class="muted">Quantidade delivered: ${num(delivered)} ${esc(it.unit||'unidades')}</p>${peopleHtml}</article>`;
   }).join(''):'<p class="muted">Nenhum item cadastrado ainda. Acesse “Cadastro de itens” para adicionar o primeiro item.</p>';
 }
+renderHistory();
 if($('welcome'))$('welcome').textContent='Painel conectado ao Firebase.';
 } 
+
+$('historySearch')?.addEventListener('input', renderHistory);
+
 $('app').classList.remove('hidden');subscribeData();
 function updateContributionGradientPreview(){
  const c1=$('contributionHeaderColor1').value,c2=$('contributionHeaderColor2').value,angle=$('contributionHeaderAngle').value;

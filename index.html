@@ -120,6 +120,15 @@ button.danger{background:#fff5f3;color:#a45d59;border-color:#f0e1dd}button.dange
 .gradient-preview{min-height:92px;border-radius:16px;padding:20px;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:800;box-shadow:0 5px 16px rgba(30,60,45,.12);border:1px solid #ffffff70;margin-top:12px}
 .color-field{display:flex;align-items:center;gap:10px}
 input[type="color"]{width:58px;min-width:58px;height:48px;padding:4px;border-radius:12px;cursor:pointer}
+
+.editor-toolbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:8px 0 0;padding:8px;background:#f2f6f1;border:1px solid #e2eae1;border-bottom:0;border-radius:13px 13px 0 0}
+.editor-toolbar .format-btn{min-width:40px;min-height:36px;padding:6px 12px;font-size:15px}
+.editor-toolbar .muted{font-size:11px}
+.rich-editor{width:100%;min-height:120px;max-height:420px;overflow:auto;border:1px solid #dfe8df;border-radius:0 0 14px 14px;padding:13px 14px;background:#fbfcfa;color:var(--ink);font:inherit;line-height:1.6;white-space:normal;overflow-wrap:anywhere}
+.rich-editor:focus{outline:none;border-color:#83ab93;box-shadow:0 0 0 4px #7fa88d1c}
+.rich-editor:empty:before{content:attr(data-placeholder);color:#89978f;pointer-events:none}
+.rich-editor p{margin:0 0 8px}.rich-editor p:last-child{margin-bottom:0}
+.editor-help{margin:6px 0 0;font-size:11px}
 </style>
 </head>
 <body>
@@ -142,7 +151,15 @@ input[type="color"]{width:58px;min-width:58px;height:48px;padding:4px;border-rad
 <section class="panel"><h2>Configurações do Evento</h2>
 <form id="settingsForm"><label for="eventTitle">Título Principal</label><input id="eventTitle" maxlength="120" required>
 <div class="row"><div><label for="eventDate">Data</label><input id="eventDate" type="date"></div><div><label for="eventTime">Horário</label><input id="eventTime" type="time"></div></div>
-<label for="eventInstructions">Orientações</label><textarea id="eventInstructions" maxlength="1500" placeholder="Informações importantes para quem vai contribuir"></textarea>
+<label for="eventInstructions">Orientações</label>
+<div class="editor-toolbar" role="toolbar" aria-label="Formatação das orientações">
+<button type="button" class="secondary format-btn" data-format="bold" aria-label="Negrito" title="Negrito"><strong>N</strong></button>
+<button type="button" class="secondary format-btn" data-format="italic" aria-label="Itálico" title="Itálico"><em>I</em></button>
+<button type="button" class="secondary format-btn" data-format="underline" aria-label="Sublinhado" title="Sublinhado"><u>S</u></button>
+<span class="muted">Selecione um trecho e escolha a formatação.</span>
+</div>
+<div id="eventInstructions" class="rich-editor" contenteditable="true" role="textbox" aria-label="Orientações do evento" aria-multiline="true" data-placeholder="Informações importantes para quem vai contribuir"></div>
+<p class="muted editor-help">Até 1.500 caracteres. A formatação será salva junto com as orientações.</p>
 <hr style="border:0;border-top:1px solid #e3eae3;margin:22px 0">
 <h3 style="font-size:16px;margin-bottom:4px">Personalizar cabeçalho da lista de contribuições</h3>
 <p class="muted">Escolha duas cores para criar um degradê. Estas opções serão salvas nas configurações para sincronização com a lista pública.</p>
@@ -184,9 +201,38 @@ const app=initializeApp(firebaseConfig),db=getDatabase(app);
 const $=id=>document.getElementById(id);let currentUser={uid:'sem-login'},items={},contributions={},settings={},adminOK=true,unsubs=[];
 function msg(text,error=false){const el=$('msg');if(!el)return;el.textContent=text;el.classList.toggle('error',error);el.classList.remove('hidden')}
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+function sanitizeInstructions(value=''){
+ const raw=String(value??'');
+ const allowed=['B','STRONG','I','EM','U','BR','P','DIV'];
+ if(!/<\s*(?:b|strong|i|em|u|br|p|div)\b/i.test(raw)){
+   const box=document.createElement('div');
+   raw.split(/\r?\n/).forEach((line,index)=>{if(index)box.appendChild(document.createElement('br'));box.appendChild(document.createTextNode(line));});
+   return box.innerHTML;
+ }
+ const parsed=new DOMParser().parseFromString(raw,'text/html');
+ const cleanNode=node=>{
+   if(node.nodeType===Node.TEXT_NODE)return document.createTextNode(node.nodeValue||'');
+   if(node.nodeType!==Node.ELEMENT_NODE)return document.createDocumentFragment();
+   const fragment=document.createDocumentFragment();
+   if(!allowed.includes(node.tagName)){[...node.childNodes].forEach(child=>fragment.appendChild(cleanNode(child)));return fragment;}
+   const el=document.createElement(node.tagName.toLowerCase());
+   [...node.childNodes].forEach(child=>el.appendChild(cleanNode(child)));
+   return el;
+ };
+ const out=document.createElement('div');
+ [...parsed.body.childNodes].forEach(node=>out.appendChild(cleanNode(node)));
+ return out.innerHTML;
+}
+function setInstructionsEditor(value){
+ const editor=$('eventInstructions');
+ if(!editor || editor===document.activeElement)return;
+ editor.innerHTML=sanitizeInstructions(value);
+}
+function getInstructionsHtml(){return sanitizeInstructions($('eventInstructions').innerHTML).trim();}
 function num(n){return Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:2})}
 function cleanSubscriptions(){unsubs.forEach(f=>f());unsubs=[]}
-function subscribeData(){cleanSubscriptions();unsubs.push(onValue(ref(db,'settings'),s=>{settings=s.val()||{};$('eventTitle').value=settings.title||'Lista de contribuições TUCUVORI';$('eventDate').value=settings.date||'';$('eventTime').value=settings.time||'';$('eventInstructions').value=settings.instructions||'';
+function subscribeData(){cleanSubscriptions();unsubs.push(onValue(ref(db,'settings'),s=>{settings=s.val()||{};$('eventTitle').value=settings.title||'Lista de contribuições TUCUVORI';$('eventDate').value=settings.date||'';$('eventTime').value=settings.time||'';setInstructionsEditor(settings.instructions||'');
 $('contributionHeaderColor1').value=/^#[0-9a-f]{6}$/i.test(settings.contributionHeaderColor1||'')?settings.contributionHeaderColor1:'#214d40';
 $('contributionHeaderColor2').value=/^#[0-9a-f]{6}$/i.test(settings.contributionHeaderColor2||'')?settings.contributionHeaderColor2:'#477d65';
 $('contributionHeaderAngle').value=['45deg','90deg','135deg','180deg'].includes(settings.contributionHeaderAngle)?settings.contributionHeaderAngle:'135deg';
@@ -217,7 +263,21 @@ function updateContributionGradientPreview(){
 }
 ['contributionHeaderColor1','contributionHeaderColor2','contributionHeaderAngle'].forEach(id=>$(id).addEventListener('input',updateContributionGradientPreview));
 updateContributionGradientPreview();
-$('settingsForm').addEventListener('submit',async e=>{e.preventDefault();if(!adminOK)return;try{await update(ref(db,'settings'),{title:$('eventTitle').value.trim(),date:$('eventDate').value,time:$('eventTime').value,instructions:$('eventInstructions').value.trim(),
+
+document.querySelector('.editor-toolbar').addEventListener('mousedown',e=>{
+ const button=e.target.closest('button[data-format]');
+ if(button)e.preventDefault();
+});
+document.querySelector('.editor-toolbar').addEventListener('click',e=>{
+ const button=e.target.closest('button[data-format]');
+ if(!button)return;
+ $('eventInstructions').focus();
+ document.execCommand(button.dataset.format,false,null);
+});
+$('eventInstructions').addEventListener('input',()=>{
+ if(($('eventInstructions').innerText||'').length>1500)msg('As orientações podem ter no máximo 1.500 caracteres.',true);
+});
+$('settingsForm').addEventListener('submit',async e=>{e.preventDefault();if(!adminOK)return;if(($('eventInstructions').innerText||'').length>1500){msg('As orientações podem ter no máximo 1.500 caracteres.',true);return}try{await update(ref(db,'settings'),{title:$('eventTitle').value.trim(),date:$('eventDate').value,time:$('eventTime').value,instructions:getInstructionsHtml(),
 contributionHeaderColor1:$('contributionHeaderColor1').value,
 contributionHeaderColor2:$('contributionHeaderColor2').value,
 contributionHeaderAngle:$('contributionHeaderAngle').value,

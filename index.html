@@ -179,6 +179,11 @@ button.not-delivered-btn.is-active{
 }
 button.not-delivered-btn.is-active .not-delivered-icon{background:#eac8c0}
 .item .person:last-child{padding-bottom:2px}
+.locked-item{border-color:#e7c9c4!important;background:linear-gradient(180deg,#fffafa,#fff)!important}
+.locked-label{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:99px;background:#fff0ed;color:#a34f45;border:1px solid #f0d8d2;font-size:11px;font-weight:800;margin-top:8px}
+button.lock-toggle{background:#fff5f2;color:#a34f45;border:1px solid #f0d8d2;box-shadow:none}
+button.lock-toggle.is-locked{background:#edf4ee;color:#35634f;border-color:#dce9df}
+button.lock-toggle:hover{transform:translateY(-1px)}
 @media(max-width:760px){
   .person .actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
   .person .actions button{width:100%;min-height:43px;font-size:11px}
@@ -291,7 +296,7 @@ button.not-delivered-btn.is-active .not-delivered-icon{background:#eac8c0}
 
 <div class="tab-panel" data-tab-panel="contributions" hidden>
 <section class="panel"><div class="topline"><h2>Adicionar Pessoa Manualmente</h2><span class="pill">Uso Administrativo</span></div>
-<p class="muted">Use quando alguém confirmar por mensagem o item que vai levar, mesmo que a lista pública esteja fechada. A pessoa será registrada no item escolhido e aparecerá na lista pública.</p>
+<p class="muted">Use quando alguém confirmar por mensagem o item que vai levar. O cadastro manual administrativo continua permitido mesmo quando a contribuição pública estiver trancada.</p>
 <form id="manualContributionForm" class="person-form">
 <div class="row"><div><label for="manualItem">Item</label><select id="manualItem" required><option value="">Selecione um Item</option></select></div><div><label for="manualName">Nome</label><input id="manualName" maxlength="120" required placeholder="Nome"></div></div>
 <div class="row"><div><label for="manualQty">Quantidade</label><input id="manualQty" type="number" min="0.01" max="100000" step="0.01" value="1" required></div><div><label for="manualNote">Observação (Opcional)</label><input id="manualNote" maxlength="300" placeholder="Ex.: confirmado por mensagem"></div></div>
@@ -444,7 +449,7 @@ function render(){
     const childCount=new Set(cs.map(c=>normalizePersonName(c.name||'')).filter(Boolean)).size;
     const assumed=cs.reduce((sum,c)=>sum+Number(c.quantity||0),0),need=Number(it.required||0),remaining=Math.max(0,need-assumed);
     if(need>0&&remaining>0)pending++;
-    return `<article class="item"><div class="itemhead"><div><span class="pill">${esc(it.category||'Sem categoria')}</span><h3 style="margin-top:9px">${esc(it.name)}</h3><div class="muted">${childCount} pessoa(s) contribuíram com este item${need>0?` · ${num(assumed)} de ${num(need)} ${esc(it.unit||'unidades')} assumidos · faltam ${num(remaining)}`:''}</div></div><div class="actions"><button class="secondary" data-edit="${esc(id)}">Editar Item</button><button class="danger" data-delete="${esc(id)}">Excluir</button></div></div><div class="progress"><span style="width:${need?Math.min(100,assumed/need*100):0}%"></span></div>${cs.length?cs.map(c=>`<div class="person"><div><strong>${esc(c.name||'Sem nome')}</strong><small>${num(c.quantity)} ${esc(it.unit||'unidades')}${c.note?' · '+esc(c.note):''} · ${c.notDelivered?'Não trouxe':(c.delivered?'Entregue':'Compromisso assumido')}</small></div><div class="actions"><button class="secondary" data-delivered="${esc(id)}|${esc(c.uid)}" data-value="${c.delivered?'false':'true'}">${c.delivered?'Desmarcar entrega':'Marcar entregue'}</button><button class="not-delivered-btn ${c.notDelivered?'is-active':''}" data-not-delivered="${esc(id)}|${esc(c.uid)}" data-value="${c.notDelivered?'false':'true'}"><span class="not-delivered-icon" aria-hidden="true">${c.notDelivered?'↶':'×'}</span><span>${c.notDelivered?'Desfazer marcação':'Não Trouxe'}</span></button><button class="danger" data-removecon="${esc(id)}|${esc(c.uid)}">Tirar pessoa do item</button></div></div>`).join(''):'<p class="muted">Ainda não há responsáveis por este item.</p>'}</article>`;
+    return `<article class="item ${it.locked?'locked-item':''}"><div class="itemhead"><div><span class="pill">${esc(it.category||'Sem categoria')}</span><h3 style="margin-top:9px">${esc(it.name)}</h3>${it.locked?'<span class="locked-label">🔒 Contribuição trancada</span>':''}<div class="muted">${childCount} pessoa(s) contribuíram com este item${need>0?` · ${num(assumed)} de ${num(need)} ${esc(it.unit||'unidades')} assumidos · faltam ${num(remaining)}`:''}</div></div><div class="actions"><button type="button" class="lock-toggle ${it.locked?'is-locked':''}" data-toggle-lock="${esc(id)}" data-value="${it.locked?'false':'true'}">${it.locked?'🔓 Destrancar':'🔒 Trancar contribuição'}</button><button class="secondary" data-edit="${esc(id)}">Editar Item</button><button class="danger" data-delete="${esc(id)}">Excluir</button></div></div><div class="progress"><span style="width:${need?Math.min(100,assumed/need*100):0}%"></span></div>${cs.length?cs.map(c=>`<div class="person"><div><strong>${esc(c.name||'Sem nome')}</strong><small>${num(c.quantity)} ${esc(it.unit||'unidades')}${c.note?' · '+esc(c.note):''} · ${c.notDelivered?'Não trouxe':(c.delivered?'Entregue':'Compromisso assumido')}</small></div><div class="actions"><button class="secondary" data-delivered="${esc(id)}|${esc(c.uid)}" data-value="${c.delivered?'false':'true'}">${c.delivered?'Desmarcar entrega':'Marcar entregue'}</button><button class="not-delivered-btn ${c.notDelivered?'is-active':''}" data-not-delivered="${esc(id)}|${esc(c.uid)}" data-value="${c.notDelivered?'false':'true'}"><span class="not-delivered-icon" aria-hidden="true">${c.notDelivered?'↶':'×'}</span><span>${c.notDelivered?'Desfazer marcação':'Não Trouxe'}</span></button><button class="danger" data-removecon="${esc(id)}|${esc(c.uid)}">Tirar pessoa do item</button></div></div>`).join(''):'<p class="muted">Ainda não há responsáveis por este item.</p>'}</article>`;
   }).join('');
   $('itemsList').innerHTML=html||'<p class="muted">Nenhum item encontrado nesta categoria.</p>';
   $('totalItems').textContent=entries.length;$('totalPeople').textContent=allNames.size;$('pendingItems').textContent=pending;
@@ -531,7 +536,7 @@ contributionHeaderColor2:$('contributionHeaderColor2').value,
 contributionHeaderAngle:$('contributionHeaderAngle').value,
 updatedAt:Date.now(),updatedBy:currentUser.uid});msg('Configurações salvas. A página pública será atualizada automaticamente.')}catch(err){msg('Erro ao salvar configurações: '+err.message,true)}});
 function resetItemForm(){$('itemForm').reset();$('itemId').value='';$('itemFormTitle').textContent='Cadastrar Item';$('cancelEdit').classList.add('hidden')}
-$('itemForm').addEventListener('submit',async e=>{e.preventDefault();if(!adminOK)return;const id=$('itemId').value||crypto.randomUUID();const old=items[id]||{};const qtyText=$('itemQty').value.trim();const payload={name:$('itemName').value.trim(),category:$('itemCategory').value.trim(),required:qtyText===''?0:Number(qtyText),unit:$('itemUnit').value,createdAt:old.createdAt||Date.now(),updatedAt:Date.now(),updatedBy:currentUser.uid};if(!payload.name||!payload.category||!Number.isFinite(payload.required)||payload.required<0||(qtyText!==''&&payload.required<=0)){msg('Preencha o nome e a categoria. A quantidade é opcional; se informada, deve ser maior que zero.',true);return}try{await set(ref(db,'items/'+id),payload);resetItemForm();msg('Item salvo com sucesso.')}catch(err){msg('Erro ao salvar item: '+err.message,true)}});
+$('itemForm').addEventListener('submit',async e=>{e.preventDefault();if(!adminOK)return;const id=$('itemId').value||crypto.randomUUID();const old=items[id]||{};const qtyText=$('itemQty').value.trim();const payload={name:$('itemName').value.trim(),category:$('itemCategory').value.trim(),required:qtyText===''?0:Number(qtyText),unit:$('itemUnit').value,locked:!!old.locked,createdAt:old.createdAt||Date.now(),updatedAt:Date.now(),updatedBy:currentUser.uid};if(!payload.name||!payload.category||!Number.isFinite(payload.required)||payload.required<0||(qtyText!==''&&payload.required<=0)){msg('Preencha o nome e a categoria. A quantidade é opcional; se informada, deve ser maior que zero.',true);return}try{await set(ref(db,'items/'+id),payload);resetItemForm();msg('Item salvo com sucesso.')}catch(err){msg('Erro ao salvar item: '+err.message,true)}});
 $('cancelEdit').addEventListener('click',resetItemForm);
 
 document.addEventListener('click',async e=>{
@@ -547,6 +552,16 @@ document.addEventListener('click',async e=>{
       await remove(ref(db,'contributions/'+id));
       await set(ref(db,'adminLogs/'+crypto.randomUUID()),{action:'delete_item',itemId:id,by:currentUser.uid,at:Date.now()});
       msg('Item e contribuições associadas removidos.');
+    }else if(b.dataset.toggleLock){
+      const id=b.dataset.toggleLock;
+      const locked=b.dataset.value==='true';
+      const item=items[id];
+      if(!item)return;
+      const actionText=locked?'trancar':'destrancar';
+      if(!confirm(`${locked?'Trancar':'Destrancar'} a contribuição de "${item.name||'este item'}"? ${locked?'Ninguém poderá assumir este item pela lista pública enquanto estiver trancado.':'As pessoas poderão voltar a assumir este item pela lista pública.'}`))return;
+      await update(ref(db,`items/${id}`),{locked,lockUpdatedAt:Date.now(),lockUpdatedBy:currentUser.uid});
+      await set(ref(db,'adminLogs/'+crypto.randomUUID()),{action:locked?'lock_item_contributions':'unlock_item_contributions',itemId:id,by:currentUser.uid,at:Date.now()});
+      msg(locked?'Contribuição trancada. Ninguém mais poderá assumir este item pela lista pública.':'Contribuição destrancada. O item voltou a aceitar participantes.');
     }else if(b.dataset.delivered){
       const [id,uid]=b.dataset.delivered.split('|');
       await update(ref(db,`contributions/${id}/${uid}`),{delivered:b.dataset.value==='true',notDelivered:false,deliveryUpdatedAt:Date.now(),deliveryUpdatedBy:currentUser.uid});
